@@ -18,8 +18,25 @@
       color: #ffffff;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+
+    .top-bar button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
     }
 
     .glass-box {
@@ -49,14 +66,8 @@
       text-align: center;
     }
 
-    .result {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #90ee90;
-    }
-
-    button {
-      width: 48%;
+    button.action-btn {
+      width: 100%;
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       color: white;
@@ -65,10 +76,10 @@
       border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin: 5px 1%;
+      margin-top: 10px;
     }
 
-    button:hover {
+    button.action-btn:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
 
@@ -79,56 +90,56 @@
     }
 
     .tab-buttons button {
-      width: auto;
+      background: transparent;
+      border: 2px solid #00ffff;
+      color: #00ffff;
       padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 10px;
+      cursor: pointer;
       font-weight: bold;
     }
 
-    .tab-content {
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: opacity 0.5s ease, max-height 0.5s ease;
-    }
-
-    .tab-content.active {
-      opacity: 1;
-      max-height: 500px;
+    .tab-buttons button.active {
+      background: #00ffff;
+      color: #000;
     }
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+  </div>
+
   <div class="glass-box">
     <h1>StMAX Staking</h1>
 
     <div class="tab-buttons">
-      <button onclick="showTab('stake')">Stake</button>
-      <button onclick="showTab('unstake')">Unstake</button>
+      <button id="stakeTabBtn" class="active" onclick="showTab('stake')">Stake</button>
+      <button id="unstakeTabBtn" onclick="showTab('unstake')">Unstake</button>
     </div>
 
-    <div id="stakeTab" class="tab-content active">
+    <div id="stakeContent">
       <input type="number" id="stakeAmount" placeholder="Enter amount to stake">
-      <div class="result" id="stakeOutput">Ready to stake</div>
-      <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-      <button onclick="stakeTokens()">Stake</button>
+      <button class="action-btn" onclick="stakeTokens()">Stake</button>
     </div>
 
-    <div id="unstakeTab" class="tab-content">
+    <div id="unstakeContent" style="display: none;">
       <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake">
-      <div class="result" id="unstakeOutput">Ready to unstake</div>
-      <button id="connectBtn2" onclick="connectWallet()">🔗 Connect Wallet</button>
-      <button onclick="unstakeTokens()">Unstake</button>
+      <button class="action-btn" onclick="unstakeTokens()">Unstake</button>
     </div>
   </div>
 
   <script>
-    const rate = 1;
     let provider;
     let signer;
 
     function showTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById(tab + 'Tab').classList.add('active');
+      document.getElementById('stakeContent').style.display = tab === 'stake' ? 'block' : 'none';
+      document.getElementById('unstakeContent').style.display = tab === 'unstake' ? 'block' : 'none';
+
+      document.getElementById('stakeTabBtn').classList.toggle('active', tab === 'stake');
+      document.getElementById('unstakeTabBtn').classList.toggle('active', tab === 'unstake');
     }
 
     async function connectWallet() {
@@ -152,7 +163,7 @@
         signer = provider.getSigner();
         const address = await signer.getAddress();
         const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-        document.querySelectorAll("#connectBtn, #connectBtn2").forEach(btn => btn.innerText = `🔗 ${shortAddress}`);
+        document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
       } catch (err) {
         console.error("Connection failed:", err);
         alert("❌ Failed to connect wallet");
