@@ -225,26 +225,38 @@
 
   async function connectWallet() {
     const providerOptions = {
-      injected: {
-        display: {
-          name: "MetaMask / Trust Wallet",
-          description: "Connect using browser extension"
-        },
-        package: null
+  metamask: {
+    package: null,
+    display: {
+      name: "MetaMask",
+      description: "Connect with MetaMask Extension"
+    }
+  },
+  trustwallet: {
+    package: null,
+    display: {
+      name: "Trust Wallet",
+      description: "Connect with Trust Wallet Extension"
+    }
+  },
+  walletconnect: {
+    package: window.WalletConnectProvider.default,
+    options: {
+      rpc: {
+        1: "https://rpc.ankr.com/eth",
+        56: "https://bsc-dataseed.binance.org/",
+        137: "https://polygon-rpc.com",
+        8453: "https://mainnet.base.org"
       },
-      walletconnect: {
-        package: window.WalletConnectProvider.default,
-        options: {
-          rpc: {
-            1: "https://rpc.ankr.com/eth",
-            56: "https://bsc-dataseed.binance.org/",
-            137: "https://polygon-rpc.com",
-            8453: "https://mainnet.base.org"
-          },
-          chainId: 8453
-        }
-      }
-    };
+      qrcode: true,
+      chainId: 8453
+    },
+    display: {
+      name: "WalletConnect",
+      description: "Scan with mobile wallet"
+    }
+  }
+};
 
     web3Modal = new window.Web3Modal.default({
       cacheProvider: false,
