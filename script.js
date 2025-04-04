@@ -1,6 +1,24 @@
 let provider;
 let signer;
 
+// Смена сети по chainId (в 16-ричной строке, напр. '0x1' для Ethereum mainnet)
+async function switchNetwork(chainIdHex) {
+  if (!window.ethereum) {
+    return alert("Please install a compatible wallet (e.g. Metamask)");
+  }
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: chainIdHex }]
+    });
+    alert("✅ Network switched!");
+  } catch (err) {
+    // Если сеть не добавлена, можем предложить добавить
+    console.error("Failed to switch network:", err);
+    // Пример: if (err.code === 4902) { ... }
+  }
+}
+
 // Подключение кошелька
 async function connectWallet() {
   const providerOptions = {
@@ -31,6 +49,7 @@ async function connectWallet() {
   }
 }
 
+// Stake (Wrap)
 async function stakeTokens() {
   const amount = document.getElementById("stakeAmount").value;
   if (!amount || amount <= 0) {
@@ -39,8 +58,8 @@ async function stakeTokens() {
   }
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // StMAX
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -62,6 +81,7 @@ async function stakeTokens() {
   }
 }
 
+// Unstake (Unwrap)
 async function unstakeTokens() {
   const amount = document.getElementById("unstakeAmount").value;
   if (!amount || amount <= 0) {
@@ -70,7 +90,7 @@ async function unstakeTokens() {
   }
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // StMAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -84,3 +104,4 @@ async function unstakeTokens() {
     alert("❌ Withdraw failed");
   }
 }
+
