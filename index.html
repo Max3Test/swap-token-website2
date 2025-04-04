@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StMAX Swap</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+  <script src="https://unpkg.com/web3modal"></script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
@@ -13,7 +15,7 @@
       font-family: 'Orbitron', sans-serif;
       background: url('TOKENOMIC.jpg') no-repeat center center fixed;
       background-size: cover;
-      color: #000000;
+      color: #ffffff;
       height: 100vh;
       display: flex;
       align-items: center;
@@ -57,7 +59,7 @@
       width: 48%;
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
-      color: rgb(255, 255, 255);
+      color: white;
       padding: 12px 16px;
       font-size: 16px;
       border-radius: 10px;
@@ -76,10 +78,58 @@
     <h1>Swap MAX → StMAX</h1>
     <input type="number" id="maxAmount" placeholder="Enter MAX amount" oninput="calculateStMAX()">
     <div class="result" id="stmaxOutput">You will receive: 0 StMAX</div>
-    <button onclick="connectWallet()">🔗 Connect</button>
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
     <button onclick="swapTokens()">Swap</button>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const rate = 1;
+    let provider;
+    let signer;
+
+    function calculateStMAX() {
+      const input = document.getElementById("maxAmount").value;
+      const output = input * rate;
+      document.getElementById("stmaxOutput").innerText = `You will receive: ${output || 0} StMAX`;
+    }
+
+    async function connectWallet() {
+      const providerOptions = {
+        walletconnect: {
+          package: window.WalletConnectProvider.default,
+          options: {
+            infuraId: "1c54aa3c993b4d94b73c84e833971254" // demo infura ID, can be changed
+          }
+        }
+      };
+
+      const web3Modal = new window.Web3Modal.default({
+        cacheProvider: false,
+        providerOptions
+      });
+
+      try {
+        const instance = await web3Modal.connect();
+        provider = new ethers.providers.Web3Provider(instance);
+        signer = provider.getSigner();
+        const address = await signer.getAddress();
+        const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
+      } catch (err) {
+        console.error("Connection failed:", err);
+        alert("❌ Failed to connect wallet");
+      }
+    }
+
+    async function swapTokens() {
+      const amount = document.getElementById("maxAmount").value;
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
+
+      alert(`Swapping ${amount} MAX for StMAX... (placeholder logic)`);
+    }
+  </script>
 </body>
 </html>
