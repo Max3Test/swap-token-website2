@@ -42,7 +42,7 @@ async function connectWallet() {
 
     const address = await signer.getAddress();
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-    document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
+    document.getElementById("connectBtn").innerText = `${shortAddress}`;
   } catch (err) {
     console.error("Connection failed:", err);
     alert("❌ Failed to connect wallet");
