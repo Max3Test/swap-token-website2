@@ -1,90 +1,82 @@
-<script>
-    let provider;
-    let signer;
-    
-    // Подключение кошелька
-    async function connectWallet() {
-      const providerOptions = {
-        walletconnect: {
-          package: window.WalletConnectProvider.default,
-          options: {
-            infuraId: "1c54aa3c993b4d94b73c84e833971254"
-          }
-        }
-      };
-    
-      const web3Modal = new window.Web3Modal.default({
-        cacheProvider: false,
-        providerOptions
-      });
-    
-      try {
-        const instance = await web3Modal.connect();
-        provider = new ethers.providers.Web3Provider(instance);
-        signer = provider.getSigner();
-    
-        const address = await signer.getAddress();
-        const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-        document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
-      } catch (err) {
-        console.error("Connection failed:", err);
-        alert("❌ Failed to connect wallet");
-      }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StMAX Swap</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+  <script src="https://unpkg.com/web3modal"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: url('https://images.unsplash.com/photo-1618005198919-d3d4b5e801a3?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
     }
-    
-    // Взаимодействие с Wrapped Token (обёртка)
-    async function stakeTokens() {
-      const amount = document.getElementById("stakeAmount").value;
-      if (!amount || amount <= 0) {
-        alert("Please enter a valid amount");
-        return;
-      }
-    
-      try {
-        const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-        const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
-    
-        const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-        const wrapperABI = ["function deposit(uint256 amount) external"];
-    
-        const token = new ethers.Contract(tokenAddress, tokenABI, signer);
-        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
-        const value = ethers.utils.parseUnits(amount, 18);
-    
-        const tx1 = await token.approve(wrapperAddress, value);
-        await tx1.wait();
-    
-        const tx2 = await wrapper.deposit(value);
-        await tx2.wait();
-    
-        alert(`✅ Successfully deposited ${amount} tokens`);
-      } catch (err) {
-        console.error(err);
-        alert("❌ Deposit failed");
-      }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #00ffff88;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
     }
-    
-    async function unstakeTokens() {
-      const amount = document.getElementById("unstakeAmount").value;
-      if (!amount || amount <= 0) {
-        alert("Please enter a valid amount");
-        return;
-      }
-    
-      try {
-        const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
-        const wrapperABI = ["function withdraw(uint256 amount) external"];
-        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
-        const value = ethers.utils.parseUnits(amount, 18);
-    
-        const tx = await wrapper.withdraw(value);
-        await tx.wait();
-    
-        alert(`✅ Successfully withdrew ${amount} tokens`);
-      } catch (err) {
-        console.error(err);
-        alert("❌ Withdraw failed");
-      }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: none;
+      text-align: center;
     }
-    </script>
-    
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #007bff, #00ffff);
+    }
+
+    .network {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>StMAX Swap</h1>
+    <button onclick="connectWallet()" id="connectBtn">🔗 Connect Wallet</button>
+
+    <h2>Stake MAX</h2>
+    <input type="number" id="stakeAmount" placeholder="Enter amount to stake" />
+    <button onclick="stakeTokens()">Stake (Wrap)</button>
+
+    <h2>Unstake StMAX</h2>
+    <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake" />
+    <button onclick="unstakeTokens()">Unstake (Unwrap)</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
