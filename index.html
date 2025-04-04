@@ -1,31 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Staking </title>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StMAX Swap</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 700px; }
-    input, button { margin: 10px; padding: 10px; font-size: 16px; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://images.unsplash.com/photo-1618005198919-d3d4b5e801a3?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    .result {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    button {
+      background: #4CAF50;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
   </style>
 </head>
 <body>
-  <h1> Staking for MAX3 Token </h1>
-  <h2> Staking your MAX3 and Earn Rewards from farming </h2>
-
-  
-
-  <div style="margin-top: 30px;">
-    <input type="text" id="amount" placeholder="Amount for Staking" />
-    <br />
-    <button onclick="swap()">Swap</button>
+  <div class="container">
+    <h1>Swap MAX to StMAX</h1>
+    <input type="number" id="maxAmount" placeholder="Enter amount of MAX" oninput="calculateStMAX()">
+    <div class="result" id="stmaxOutput">You will receive: 0 StMAX</div>
+    <button onclick="connectWallet()">🔗 Connect Wallet</button>
+    <button onclick="swapTokens()">Swap</button>
   </div>
 
-  <button onclick="connect()">🔗 Connect Wallet</button>
+  <script>
+    const rate = 1; // You can change the rate here (e.g., 1 MAX = 0.95 StMAX)
 
-  <p id="status"></p>
+    function calculateStMAX() {
+      const input = document.getElementById("maxAmount").value;
+      const output = input * rate;
+      document.getElementById("stmaxOutput").innerText = `You will receive: ${output || 0} StMAX`;
+    }
 
-  <script src="script.js"></script>
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("Install Metamask to connect your wallet");
+        return;
+      }
+
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        alert("Wallet connected!");
+      } catch (err) {
+        console.error(err);
+        alert("Connection failed");
+      }
+    }
+
+    async function swapTokens() {
+      const amount = document.getElementById("maxAmount").value;
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
+
+      // Here you would call your smart contract to perform the swap
+      alert(`Swapping ${amount} MAX for StMAX...`);
+    }
+  </script>
 </body>
 </html>
+
