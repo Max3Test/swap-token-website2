@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>StMAX Swap</title>
+  <title>Your Farm</title>
 
   <!-- Подключаем необходимые библиотеки для кошельков и Web3 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -188,33 +188,33 @@
 <body>
   <!-- Левая панель: Stake/Unstake, друг под другом -->
   <div class="left-panel">
-    <button onclick="showTab('stake')">Stake</button>
-    <button onclick="showTab('unstake')">Unstake</button>
+    <button onclick="showTab('stake')">Farm</button>
+    <button onclick="showTab('unstake')">UnFarm</button>
   </div>
 
   <!-- Правая панель: Connect Wallet, Switch Network, друг под другом -->
   <div class="right-panel">
-    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-    <button onclick="switchNetwork('0x2105')">Switch Network</button>
+    <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <button onclick="switchNetwork('0x2105')">Switch to Base</button>
   </div>
 
   <!-- Крупная надпись -->
-  <div class="big-title">Cross Chain Meme Proof Of Farm</div>
+  <div class="big-title">Cross Chain Meme with Proof Of Farm</div>
 
   <div class="container">
-    <h1>StMAX Wrapper</h1>
+    <h1>Start your trip to Farm with STMAX</h1>
     <hr style="margin: 20px 0;">
     
     <!-- Вкладка для Stake -->
     <div id="stakeTab" class="tab-content">
-      <h3>Stake MAX → StMAX</h3>
+      <h3>Farm MAX → StMAX</h3>
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
       <button onclick="stakeTokens()">Stake</button>
     </div>
 
     <!-- Вкладка для Unstake -->
     <div id="unstakeTab" class="tab-content">
-      <h3>Unstake StMAX → MAX</h3>
+      <h3>UnFarm StMAX → MAX</h3>
       <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
       <button onclick="unstakeTokens()">Unstake</button>
     </div>
