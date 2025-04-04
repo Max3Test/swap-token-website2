@@ -199,23 +199,44 @@
     let userAddress;
 
     async function toggleWalletInfo() {
-      if (!provider) {
-        await connectWallet();
-        return;
-      }
+  if (!provider) {
+    await connectWallet();
+    return;
+  }
+  const slideout = document.getElementById("walletSlideout");
+  if (slideout.style.display === "none") {
+    await updateBalances();
+    slideout.style.display = "block";
+  } else {
+    slideout.style.display = "none";
+  }
+}
       const slideout = document.getElementById("walletSlideout");
       slideout.style.display = slideout.style.display === "none" ? "block" : "none";
     }
 
     async function connectWallet() {
       const providerOptions = {
-        walletconnect: {
-          package: window.WalletConnectProvider.default,
-          options: {
-            infuraId: "1c54aa3c993b4d94b73c84e833971254"
-          }
-        }
-      };
+  injected: {
+    display: {
+      name: "MetaMask / Trust Wallet",
+      description: "Connect using browser extension"
+    },
+    package: null
+  },
+  walletconnect: {
+    package: window.WalletConnectProvider.default,
+    options: {
+      rpc: {
+        1: "https://rpc.ankr.com/eth",
+        56: "https://bsc-dataseed.binance.org/",
+        137: "https://polygon-rpc.com",
+        8453: "https://mainnet.base.org"
+      },
+      chainId: 8453 // BASE chain
+    }
+  }
+};
 
       web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
