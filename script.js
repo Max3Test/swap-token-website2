@@ -31,13 +31,7 @@ async function connectWallet() {
   }
 }
 
-// Взаимодействие с Wrapped Token (обёртка)
 async function stakeTokens() {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
   const amount = document.getElementById("stakeAmount").value;
   if (!amount || amount <= 0) {
     alert("Please enter a valid amount");
@@ -45,8 +39,8 @@ async function stakeTokens() {
   }
 
   try {
-    const tokenAddress = "0xYourOriginalTokenAddress"; // 🔁 ВСТАВЬ сюда адрес токена MAX
-    const wrapperAddress = "0xYourWrappedTokenAddress"; // 🔁 ВСТАВЬ сюда адрес токена StMAX
+    const tokenAddress = "0xYourOriginalTokenAddress"; // 👉 ВСТАВЬ сюда адрес MAX
+    const wrapperAddress = "0xYourWrappedTokenAddress"; // 👉 ВСТАВЬ сюда адрес контракта StMAX
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -61,7 +55,7 @@ async function stakeTokens() {
     const tx2 = await wrapper.deposit(value);
     await tx2.wait();
 
-    alert(`✅ Successfully deposited ${amount} MAX`);
+    alert(`✅ Successfully deposited ${amount} tokens`);
   } catch (err) {
     console.error(err);
     alert("❌ Deposit failed");
@@ -69,11 +63,6 @@ async function stakeTokens() {
 }
 
 async function unstakeTokens() {
-  if (!signer) {
-    alert("Please connect your wallet first.");
-    return;
-  }
-
   const amount = document.getElementById("unstakeAmount").value;
   if (!amount || amount <= 0) {
     alert("Please enter a valid amount");
@@ -81,7 +70,7 @@ async function unstakeTokens() {
   }
 
   try {
-    const wrapperAddress = "0xYourWrappedTokenAddress"; // 🔁 ВСТАВЬ сюда адрес токена StMAX
+    const wrapperAddress = "0xYourWrappedTokenAddress"; // 👉 ВСТАВЬ сюда адрес StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -89,7 +78,7 @@ async function unstakeTokens() {
     const tx = await wrapper.withdraw(value);
     await tx.wait();
 
-    alert(`✅ Successfully withdrew ${amount} MAX`);
+    alert(`✅ Successfully withdrew ${amount} tokens`);
   } catch (err) {
     console.error(err);
     alert("❌ Withdraw failed");
