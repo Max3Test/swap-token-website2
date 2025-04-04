@@ -10,21 +10,79 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
+      margin: 0;
+      padding: 0;
       font-family: 'Orbitron', sans-serif;
-      background: url('https://images.unsplash.com/photo-1618005198919-d3d4b5e801a3?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background: url('TOKENOMIC.jpg') no-repeat center center fixed;
       background-size: cover;
+      color: #ffffff;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
-      color: #fff;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+    }
+
+    .top-bar button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tabs {
+      position: absolute;
+      left: 40px;
+      top: 40px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .tabs button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #00ffff;
+      color: black;
+    }
+
+    .title-banner {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-top: 80px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .mega-title {
+      font-size: 4em; /* 4x bigger than default 1em titles */
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00ffff;
+      text-shadow: 0 0 15px #00ffff;
     }
 
     .container {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 30px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
       border-radius: 20px;
       box-shadow: 0 0 20px #00ffff88;
       text-align: center;
@@ -34,49 +92,75 @@
 
     input[type="number"] {
       width: 100%;
-      padding: 10px;
-      font-size: 16px;
+      padding: 12px;
       margin-bottom: 20px;
+      font-size: 16px;
       border-radius: 10px;
       border: none;
       text-align: center;
     }
 
-    button {
+    button.action {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
       font-size: 16px;
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       border-radius: 10px;
       color: white;
       cursor: pointer;
-    }
-
-    button:hover {
-      background: linear-gradient(to right, #007bff, #00ffff);
-    }
-
-    .network {
       margin-bottom: 10px;
+    }
+
+    button.action:hover {
+      background: linear-gradient(to right, #007bff, #00ffff);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>StMAX Swap</h1>
-    <button onclick="connectWallet()" id="connectBtn">🔗 Connect Wallet</button>
-
-    <h2>Stake MAX</h2>
-    <input type="number" id="stakeAmount" placeholder="Enter amount to stake" />
-    <button onclick="stakeTokens()">Stake (Wrap)</button>
-
-    <h2>Unstake StMAX</h2>
-    <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake" />
-    <button onclick="unstakeTokens()">Unstake (Unwrap)</button>
+  <!-- Tabs on left top -->
+  <div class="tabs">
+    <button class="tab-button active" onclick="showTab('wrap')">Wrap</button>
+    <button class="tab-button" onclick="showTab('unwrap')">Unwrap</button>
   </div>
+
+  <!-- Connect Wallet on right top -->
+  <div class="top-bar">
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+  </div>
+
+  <!-- Big Title Banner -->
+  <div class="mega-title">First Cross Chain Meme Proof Of Farm</div>
+
+  <div class="container">
+    <h1>Start Farming now with StMAX</h1>
+
+    <!-- Wrap tab content -->
+    <div id="wrapTab">
+      <input type="number" id="stakeAmount" placeholder="Amount to Wrap" />
+      <button class="action" onclick="stakeTokens()">Wrap</button>
+    </div>
+
+    <!-- Unwrap tab content -->
+    <div id="unwrapTab" style="display: none;">
+      <input type="number" id="unstakeAmount" placeholder="Amount to Unwrap" />
+      <button class="action" onclick="unstakeTokens()">Unwrap</button>
+    </div>
+  </div>
+
+  <script>
+    function showTab(tab) {
+      const wrapTab = document.getElementById('wrapTab');
+      const unwrapTab = document.getElementById('unwrapTab');
+      wrapTab.style.display = (tab === 'wrap') ? 'block' : 'none';
+      unwrapTab.style.display = (tab === 'unwrap') ? 'block' : 'none';
+
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
+    }
+  </script>
 
   <script src="script.js"></script>
 </body>
 </html>
+
