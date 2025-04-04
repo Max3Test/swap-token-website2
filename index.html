@@ -23,6 +23,36 @@
       justify-content: center;
     }
 
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+      box-sizing: border-box;
+    }
+
+    .top-bar .tabs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-bar button, .tab-button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background: #00ffff;
+      color: #000;
+    }
+
     .container {
       background: rgba(0, 0, 0, 0.6);
       padding: 40px;
@@ -43,7 +73,7 @@
       text-align: center;
     }
 
-    button {
+    button.action {
       width: 100%;
       padding: 12px;
       font-size: 16px;
@@ -55,7 +85,7 @@
       margin-bottom: 10px;
     }
 
-    button:hover {
+    button.action:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
 
@@ -65,21 +95,36 @@
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <div class="tabs">
+      <button class="tab-button active" onclick="showTab('stake')">Stake</button>
+      <button class="tab-button" onclick="showTab('unstake')">Unstake</button>
+    </div>
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+  </div>
+
   <div class="container">
     <h1>StMAX Wrapper</h1>
-    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-    <hr style="margin: 20px 0;">
-    <div>
-      <h3>Stake MAX → StMAX</h3>
+
+    <div id="stakeTab">
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
-      <button onclick="stakeTokens()">Stake</button>
+      <button class="action" onclick="stakeTokens()">Stake</button>
     </div>
-    <div>
-      <h3>Unstake StMAX → MAX</h3>
+
+    <div id="unstakeTab" style="display:none;">
       <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
-      <button onclick="unstakeTokens()">Unstake</button>
+      <button class="action" onclick="unstakeTokens()">Unstake</button>
     </div>
   </div>
+
+  <script>
+    function showTab(tab) {
+      document.getElementById('stakeTab').style.display = tab === 'stake' ? 'block' : 'none';
+      document.getElementById('unstakeTab').style.display = tab === 'unstake' ? 'block' : 'none';
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
+    }
+  </script>
 
   <script src="script.js"></script>
 </body>
