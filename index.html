@@ -10,25 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: 'Orbitron', sans-serif;
-      background: url('TOKENOMIC.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #ffffff;
-      height: 100vh;
+      background: linear-gradient(to right, #1c1c1c, #2c2c2c);
+      color: white;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh;
+      margin: 0;
+      position: relative;
     }
-
+    
     .top-bar {
       position: absolute;
       top: 40px;
       right: 40px;
     }
-
     .top-bar button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -38,7 +36,7 @@
       border-radius: 10px;
       cursor: pointer;
     }
-
+    
     .tabs {
       position: absolute;
       left: 40px;
@@ -46,7 +44,6 @@
       display: flex;
       gap: 10px;
     }
-
     .tabs button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -56,40 +53,30 @@
       border-radius: 10px;
       cursor: pointer;
     }
-
     .tabs button.active {
       background: #00ffff;
       color: black;
     }
-
-    .title-banner {
-      font-size: 32px;
-      font-weight: bold;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
-      margin-top: 80px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
+    
     .mega-title {
-      font-size: 4em; /* 4x bigger than default 1em titles */
+      font-size: 4em; 
+      margin-top: 80px;
       margin-bottom: 20px;
       text-align: center;
       color: #00ffff;
       text-shadow: 0 0 15px #00ffff;
     }
-
+    
     .container {
       background: rgba(0, 0, 0, 0.6);
-      padding: 40px;
+      padding: 30px;
       border-radius: 20px;
       box-shadow: 0 0 20px #00ffff88;
       text-align: center;
-      max-width: 400px;
+      max-width: 320px; /
       width: 90%;
+      margin-bottom: 20px; /
     }
-
     input[type="number"] {
       width: 100%;
       padding: 12px;
@@ -99,7 +86,6 @@
       border: none;
       text-align: center;
     }
-
     button.action {
       width: 100%;
       padding: 12px;
@@ -111,37 +97,37 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
-
     button.action:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
   </style>
 </head>
 <body>
-  <!-- Tabs on left top -->
+  
   <div class="tabs">
     <button class="tab-button active" onclick="showTab('wrap')">Wrap</button>
     <button class="tab-button" onclick="showTab('unwrap')">Unwrap</button>
   </div>
 
-  <!-- Connect Wallet on right top -->
+  
   <div class="top-bar">
     <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
   </div>
 
-  <!-- Big Title Banner -->
+  
   <div class="mega-title">First Cross Chain Meme Proof Of Farm</div>
 
+  
   <div class="container">
     <h1>Start Farming now with StMAX</h1>
 
-    <!-- Wrap tab content -->
+    
     <div id="wrapTab">
       <input type="number" id="stakeAmount" placeholder="Amount to Wrap" />
       <button class="action" onclick="stakeTokens()">Wrap</button>
     </div>
 
-    <!-- Unwrap tab content -->
+    
     <div id="unwrapTab" style="display: none;">
       <input type="number" id="unstakeAmount" placeholder="Amount to Unwrap" />
       <button class="action" onclick="unstakeTokens()">Unwrap</button>
@@ -149,6 +135,7 @@
   </div>
 
   <script>
+    
     function showTab(tab) {
       const wrapTab = document.getElementById('wrapTab');
       const unwrapTab = document.getElementById('unwrapTab');
@@ -160,7 +147,7 @@
     }
   </script>
 
+  <!-- Подключаем скрипт с подключением кошелька, стейком и анстейком -->
   <script src="script.js"></script>
 </body>
 </html>
-
