@@ -229,8 +229,8 @@
     package: null,
     options: {},
     display: {
-      name: "Injected",
-      description: "Connect with MetaMask, Trust Wallet, etc."
+      name: "MetaMask / Trust Wallet",
+      description: "Connect using browser wallet extension"
     }
   },
   walletconnect: {
@@ -242,12 +242,11 @@
         137: "https://polygon-rpc.com",
         8453: "https://mainnet.base.org"
       },
-      qrcode: true,
-      chainId: 8453
+      qrcode: true
     },
     display: {
       name: "WalletConnect",
-      description: "Scan with mobile wallet"
+      description: "Scan with WalletConnect-compatible wallet"
     }
   }
 };
@@ -287,8 +286,8 @@
   async function updateBalances() {
     if (!signer || !userAddress) return;
 
-    const tokenAddress = "0xYourOriginalTokenAddress";
-    const wrapperAddress = "0xYourWrappedTokenAddress";
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e";
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d";
 
     const abi = ["function balanceOf(address) view returns (uint256)"];
     const erc20 = new ethers.Contract(tokenAddress, abi, provider);
