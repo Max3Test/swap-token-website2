@@ -32,4 +32,3 @@ async function swapTokens() {
   // Здесь должен быть вызов контракта
   alert(`Swapping ${amount} MAX for StMAX... (this is a placeholder)`);
 }
-
