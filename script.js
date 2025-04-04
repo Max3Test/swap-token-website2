@@ -15,7 +15,12 @@ async function connectWallet() {
   try {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
-    alert("✅ Wallet connected!");
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    // Показываем сокращённый адрес в кнопке
+    const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+    document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
   } catch (err) {
     console.error(err);
     alert("❌ Failed to connect wallet");
