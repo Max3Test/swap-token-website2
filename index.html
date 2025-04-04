@@ -70,6 +70,16 @@
       cursor: not-allowed;
     }
 
+    .title-banner {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-top: 80px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
     .container {
       background: rgba(0, 0, 0, 0.6);
       padding: 40px;
@@ -83,11 +93,17 @@
     input[type="number"] {
       width: 100%;
       padding: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       font-size: 16px;
       border-radius: 10px;
       border: none;
       text-align: center;
+    }
+
+    .token-balances {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #90ee90;
     }
 
     button.action {
@@ -104,18 +120,6 @@
 
     button.action:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
-    }
-
-    .balances {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: #90ee90;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      color: #00ffff;
-      margin-bottom: 10px;
     }
 
     .wallet-slideout {
@@ -170,12 +174,14 @@
     <button onclick="disconnectWallet()">Disconnect</button>
   </div>
 
+  <div class="title-banner">First Cross Chain Meme Proof Of Farm</div>
+
   <div class="container">
-    <h1>StMAX Wrapper</h1>
-    <div class="subtitle">First Cross Chain Meme Proof Of Farm</div>
+    <h1>Start farming now with StMAX</h1>
 
     <div id="stakeTab">
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
+      <div class="token-balances" id="stakeBalances">MAX: 0 | StMAX: 0</div>
       <button class="action" onclick="stakeTokens()">Stake</button>
     </div>
 
@@ -186,86 +192,8 @@
   </div>
 
   <script>
-    function showTab(tab) {
-      document.getElementById('stakeTab').style.display = tab === 'stake' ? 'block' : 'none';
-      document.getElementById('unstakeTab').style.display = tab === 'unstake' ? 'block' : 'none';
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
-    }
-
-    let web3Modal;
-    let provider;
-    let signer;
-    let userAddress;
-
-    async function toggleWalletInfo() {
-      if (!provider) {
-        await connectWallet();
-        return;
-      }
-      const slideout = document.getElementById("walletSlideout");
-      slideout.style.display = slideout.style.display === "none" ? "block" : "none";
-    }
-
-    async function connectWallet() {
-      const providerOptions = {
-        walletconnect: {
-          package: window.WalletConnectProvider.default,
-          options: {
-            infuraId: "1c54aa3c993b4d94b73c84e833971254"
-          }
-        }
-      };
-
-      web3Modal = new window.Web3Modal.default({
-        cacheProvider: false,
-        providerOptions
-      });
-
-      try {
-        const instance = await web3Modal.connect();
-        provider = new ethers.providers.Web3Provider(instance);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-
-        document.getElementById("connectBtn").innerText = `🔌 ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
-        document.getElementById("walletAddress").innerText = `Address: ${userAddress}`;
-
-        await updateBalances();
-      } catch (err) {
-        console.error("Connection failed:", err);
-        alert("❌ Failed to connect wallet");
-      }
-    }
-
-    async function disconnectWallet() {
-      if (web3Modal) {
-        await web3Modal.clearCachedProvider();
-        provider = null;
-        signer = null;
-        userAddress = null;
-        document.getElementById("connectBtn").innerText = "🔗 Connect Wallet";
-        document.getElementById("walletSlideout").style.display = "none";
-      }
-    }
-
-    async function updateBalances() {
-      if (!signer || !userAddress) return;
-
-      const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; //  MAX
-      const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; //  StMAX
-
-      const abi = ["function balanceOf(address) view returns (uint256)"];
-      const erc20 = new ethers.Contract(tokenAddress, abi, provider);
-      const stmax = new ethers.Contract(wrapperAddress, abi, provider);
-
-      const [balMax, balStmax] = await Promise.all([
-        erc20.balanceOf(userAddress),
-        stmax.balanceOf(userAddress)
-      ]);
-
-      document.getElementById("walletBalances").innerText =
-        `MAX: ${ethers.utils.formatUnits(balMax, 18)} | StMAX: ${ethers.utils.formatUnits(balStmax, 18)}`;
+    function updateStakeBalances(balMax, balStmax) {
+      document.getElementById("stakeBalances").innerText = `MAX: ${balMax} | StMAX: ${balStmax}`;
     }
   </script>
 </body>
