@@ -1,31 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Staking </title>
-  <meta charset="UTF-8" />
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 700px; }
-    input, button { margin: 10px; padding: 10px; font-size: 16px; }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MAX3 Tools</title>
+    <meta name="description" content="DAppCrypto dApp Tools">
 
-  </style>
+    <link rel="apple-touch-icon" sizes="180x180" href="/dappFrontend/imgs/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/dappFrontend/imgs/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/dappFrontend/imgs/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/dappFrontend/imgs/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="dappFrontend/js/includes/bignumber.min.js?cache=1"></script>
+    <script src="dappFrontend/js/includes/chart.js?cache=1"></script>
+    <script src="dappFrontend/js/includes/crypto-js.js?cache=1"></script>
+    <script src="dappFrontend/js/web3.min.js?cache=1"></script>
+    <script src="dappFrontend/js/dappcrypto.min.js?cache=30"></script>
+
+    <link rel="stylesheet" href="dappFrontend/css/daap-template.css" type="text/css">
 </head>
-<body>
-  <h1> Staking for MAX3 Token </h1>
-  <h2> Staking your MAX3 and Earn Rewards from farming </h2>
-
-  
-
-  <div style="margin-top: 30px;">
-    <input type="text" id="amount" placeholder="Amount for Staking" />
-    <br />
-    <button onclick="swap()">Swap</button>
-  </div>
-
-  <button onclick="connect()">🔗 Connect Wallet</button>
-
-  <p id="status"></p>
-
-  <script src="script.js"></script>
-</body>
+<body class="dappContent" data-page="Token"></body>
 </html>
