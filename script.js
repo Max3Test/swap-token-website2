@@ -1,38 +1,35 @@
-let provider;
-let signer;
-let contract;
+const rate = 1; // Можно изменить: например, 1 MAX = 0.95 StMAX
 
-const CONTRACT_ADDRESS = "0x..."; // 👉 вставь сюда адрес своего смарт-контракта
-const ABI = [
-  // Минимальный ABI для вызова swap функции
-  "function swap(uint256 amount) public"
-];
-
-async function connect() {
-  if (!window.ethereum) return alert("Установи MetaMask!");
-
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-  document.getElementById("status").innerText = "✅ Wallet connected!";
+function calculateStMAX() {
+  const input = document.getElementById("maxAmount").value;
+  const output = input * rate;
+  document.getElementById("stmaxOutput").innerText = `You will receive: ${output || 0} StMAX`;
 }
 
-async function swap() {
-  if (!contract) return alert("Сначала подключи кошелек!");
-
-  const amount = document.getElementById("amount").value;
-  if (!amount) return alert("Введите количество!");
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("Please install Metamask to connect your wallet");
+    return;
+  }
 
   try {
-    const tx = await contract.swap(ethers.utils.parseEther(amount));
-    document.getElementById("status").innerText = "⏳ Swapping...";
-    await tx.wait();
-    document.getElementById("status").innerText = "✅ Swap successful!";
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    alert("✅ Wallet connected!");
   } catch (err) {
     console.error(err);
-    document.getElementById("status").innerText = "❌ Ошибка при обмене";
+    alert("❌ Failed to connect wallet");
   }
 }
+
+async function swapTokens() {
+  const amount = document.getElementById("maxAmount").value;
+  if (!amount || amount <= 0) {
+    alert("Please enter a valid amount");
+    return;
+  }
+
+  // Здесь должен быть вызов контракта
+  alert(`Swapping ${amount} MAX for StMAX... (this is a placeholder)`);
+}
+
