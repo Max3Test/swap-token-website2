@@ -27,7 +27,6 @@
       top: 40px;
       right: 40px;
     }
-
     .top-bar button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -45,7 +44,6 @@
       display: flex;
       gap: 10px;
     }
-
     .tabs button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -55,14 +53,13 @@
       border-radius: 10px;
       cursor: pointer;
     }
-
     .tabs button.active {
       background: #00ffff;
       color: black;
     }
 
     .mega-title {
-      font-size: 4em; /* 4x bigger than default 1em titles */
+      font-size: 4em;
       margin-bottom: 20px;
       text-align: center;
       color: #00ffff;
@@ -90,29 +87,32 @@
       -moz-appearance: textfield; /* Firefox */
     }
 
-    /* Делаем поле уже, вместо 100% */
+    /* Делаем поле и кнопку одной ширины */
+    input[type="number"],
+    button.action {
+      width: 80%;
+      margin: 0 auto 20px auto; /* отступы сверху/снизу */
+      display: block; /* чтобы выровнять по центру */
+    }
+
     input[type="number"] {
-      width: 60%;       /* Можно менять по вкусу: 200px, 70%, и т.д. */
-      padding: 12px;
-      margin-bottom: 20px;
       font-size: 16px;
       border-radius: 10px;
       border: none;
       text-align: center;
+      padding: 12px;
     }
 
     button.action {
-      width: 100%;
-      padding: 12px;
       font-size: 16px;
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       border-radius: 10px;
       color: white;
       cursor: pointer;
+      padding: 12px;
       margin-bottom: 10px;
     }
-
     button.action:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
@@ -163,6 +163,5 @@
   <script src="script.js"></script>
 </body>
 </html>
-
 
 
