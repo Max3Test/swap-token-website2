@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Your Farm</title>
+  <title>StMAX Swap</title>
 
   <!-- Подключаем необходимые библиотеки для кошельков и Web3 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -14,16 +14,8 @@
 
   <!-- Подключаем шрифт Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-
   <style>
-    /*
-      Базовые стили для всего сайта:
-      - Градиентный фон
-      - Flex-верстка по вертикали
-      - Центровка контента по горизонтали и вертикали
-      - Высота экрана 100%
-      - Нулевые отступы по умолчанию
-    */
+    /* Общие стили для фона и шрифта (сохраняем основной визуал) */
     body {
       font-family: 'Orbitron', sans-serif;
       background: linear-gradient(to right, #1c1c1c, #2c2c2c);
@@ -37,15 +29,13 @@
       position: relative;
     }
 
-    /*
-      Левая панель (кнопки Stake / Unstake) в левом верхнем углу с отступом 40px
-      Делаем их небольшими кнопками со стилем, как было прежде
-    */
+    /* Левая панель, кнопки Stake / Unstake, друг под другом */
     .left-panel {
       position: absolute;
       top: 40px;
       left: 40px;
       display: flex;
+      flex-direction: column;
       gap: 10px;
     }
     .left-panel button {
@@ -56,22 +46,19 @@
       font-size: 14px;
       border-radius: 10px;
       cursor: pointer;
+      width: 130px;
     }
-    /* Подсветка при активном режиме */
-    .left-panel button.active {
-      background: #00ffff;
-      color: #000;
+    .left-panel button:hover {
+      background: linear-gradient(to right, #007bff, #00ffff);
     }
 
-    /*
-      Правая панель (кнопки Connect Wallet и Switch Network) в правом верхнем углу
-      тоже отступ 40px
-    */
+    /* Правая панель (Connect Wallet, Switch Network), друг под другом */
     .right-panel {
       position: absolute;
       top: 40px;
       right: 40px;
       display: flex;
+      flex-direction: column;
       gap: 10px;
     }
     .right-panel button {
@@ -82,17 +69,15 @@
       font-size: 14px;
       border-radius: 10px;
       cursor: pointer;
+      width: 140px;
     }
     .right-panel button:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
 
-    /*
-      Надпись "Cross Chain Meme Proof Of Farm" над окном свапа
-      Делаем её крупнее, но не ломаем общий вид
-    */
+    /* Крупная надпись над окном свапа */
     .big-title {
-      font-size: 1.8em; /* Можно регулировать под себя */
+      font-size: 1.8em;
       font-weight: bold;
       color: #00ffff;
       text-shadow: 0 0 10px #00ffff;
@@ -101,10 +86,7 @@
       text-align: center;
     }
 
-    /*
-      Основной контейнер (как в предыдущей версии),
-      визуал не меняем, т.к. нужно сохранить стиль
-    */
+    /* Основной контейнер (UI) */
     .container {
       background: rgba(0, 0, 0, 0.6);
       padding: 40px;
@@ -115,11 +97,7 @@
       width: 90%;
     }
 
-    /*
-      Поле ввода числа (Stake / Unstake)
-      на всю ширину контейнера, скруглённые углы,
-      отсутствуют стрелочки
-    */
+    /* Поля ввода */
     input[type="number"] {
       width: 100%;
       padding: 12px;
@@ -130,10 +108,7 @@
       text-align: center;
     }
 
-    /*
-      Кнопки (Connect Wallet, Stake, Unstake) внутри контейнера
-      на всю ширину, градиентный фон
-    */
+    /* Кнопки внутри контейнера (Stake, Unstake) */
     button {
       width: 100%;
       padding: 12px;
@@ -149,18 +124,28 @@
       background: linear-gradient(to right, #007bff, #00ffff);
     }
 
-    /*
-      Заголовок внутри контейнера
-    */
     h1 {
       margin-bottom: 30px;
     }
 
-    /*
-      Адаптация под мобильные устройства:
-      - Уменьшаем контейнер, поля, шрифты
-      - Не ломаем основной вид на больших экранах
-    */
+    /* Добавляем анимацию fade для вкладок */
+    .tab-content {
+      display: none; /* По умолчанию скрыты */
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* Адаптация под мобильные устройства */
     @media (max-width: 600px) {
       .big-title {
         font-size: 1.5em;
@@ -182,89 +167,95 @@
         font-size: 14px;
         padding: 10px;
       }
+      .left-panel, .right-panel {
+        top: 10px;
+      }
+      .left-panel button,
+      .right-panel button {
+        width: auto;
+      }
     }
 
-    /*
-      Классы для определения, запущено ли в wallet-app
-      (Trust, Metamask mobile и т.д.)
-      Можно расширять под safepal, coinbase и т.п.
-    */
-    body.wallet-trust .container,
+    /* Классы для определения wallet-app (Trust, Metamask mobile и т.д.) */
+    body.wallet-trust .container {
+      max-width: 350px;
+    }
     body.wallet-metamaskmobile .container {
       max-width: 350px;
     }
   </style>
 </head>
 <body>
-  <!-- Левая панель: кнопки Stake / Unstake -->
+  <!-- Левая панель: Stake/Unstake, друг под другом -->
   <div class="left-panel">
-    <button class="active" onclick="showTab('stake')">Stake</button>
+    <button onclick="showTab('stake')">Stake</button>
     <button onclick="showTab('unstake')">Unstake</button>
   </div>
 
-  <!-- Правая панель: Connect Wallet и Switch Network -->
+  <!-- Правая панель: Connect Wallet, Switch Network, друг под другом -->
   <div class="right-panel">
-    <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-    <button onclick="switchNetwork('0x2105')">Switch to Base</button>
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+    <button onclick="switchNetwork('0x2105')">Switch Network</button>
   </div>
 
-  <!-- Надпись над окном свапа -->
-  <div class="big-title">Cross Chain Meme with Proof Of Farm</div>
+  <!-- Крупная надпись -->
+  <div class="big-title">Cross Chain Meme Proof Of Farm</div>
 
-  <!-- Основной контейнер (окно свапа) -->
   <div class="container">
-    <h1>Start your to trip to farm with StMAX</h1>
-
-    <!-- Горизонтальная линия (оформление) -->
+    <h1>StMAX Wrapper</h1>
     <hr style="margin: 20px 0;">
-
-    <!-- Блок для Stake -->
-    <div id="stakeBlock">
-      <h3>Farm MAX → StMAX</h3>
+    
+    <!-- Вкладка для Stake -->
+    <div id="stakeTab" class="tab-content">
+      <h3>Stake MAX → StMAX</h3>
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
       <button onclick="stakeTokens()">Stake</button>
     </div>
 
-    <!-- Блок для Unstake -->
-    <div id="unstakeBlock">
-      <h3>UnFarm StMAX → MAX</h3>
+    <!-- Вкладка для Unstake -->
+    <div id="unstakeTab" class="tab-content">
+      <h3>Unstake StMAX → MAX</h3>
       <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
       <button onclick="unstakeTokens()">Unstake</button>
     </div>
   </div>
 
-  <!-- Скрипты -->
+  <script src="script.js"></script>
   <script>
-    /*
-      Функция переключения вкладок Stake / Unstake.
-      Можно скрывать или показывать соответствующие блоки в контейнере.
-    */
+    // При загрузке показываем вкладку stake
+    window.addEventListener('DOMContentLoaded', () => {
+      showTab('stake');
+    });
+
     function showTab(tab) {
-      const stakeBlock = document.getElementById('stakeBlock');
-      const unstakeBlock = document.getElementById('unstakeBlock');
+      // Получаем ссылки на вкладки
+      const stakeTab = document.getElementById('stakeTab');
+      const unstakeTab = document.getElementById('unstakeTab');
 
-      if (tab === 'stake') {
-        stakeBlock.style.display = 'block';
-        unstakeBlock.style.display = 'none';
-      } else {
-        stakeBlock.style.display = 'none';
-        unstakeBlock.style.display = 'block';
-      }
+      // Сначала скрываем обе вкладки
+      stakeTab.style.display = 'none';
+      unstakeTab.style.display = 'none';
 
-      // Обновляем активную кнопку (выделяем нужную)
-      const leftPanelButtons = document.querySelectorAll('.left-panel button');
-      leftPanelButtons.forEach(btn => btn.classList.remove('active'));
+      // Убираем анимированный класс
+      stakeTab.classList.remove('fade');
+      unstakeTab.classList.remove('fade');
+
+      // Включаем нужную вкладку + анимацию
       if (tab === 'stake') {
-        leftPanelButtons[0].classList.add('active');
+        stakeTab.style.display = 'block';
+        stakeTab.classList.add('fade');
       } else {
-        leftPanelButtons[1].classList.add('active');
+        unstakeTab.style.display = 'block';
+        unstakeTab.classList.add('fade');
       }
     }
 
+    // Ключевой кадр: добавим класс fade в .tab-content.
+    // В CSS уже есть animation: fadeIn 0.5s ease forwards;
+    // Можно просто .fade { animation: fadeIn 0.5s ...} но делаем inline.
+
     /*
-      Пример функции для переключения сети (Base), если нужно.
-      Предполагается, что в script.js
-      существует switchNetwork(chainIdHex).
+      Пример switchNetwork. Реализуйте в script.js, если нужно.
     */
     async function switchNetwork(chainIdHex) {
       if (!window.ethereum) {
@@ -281,31 +272,7 @@
         alert("❌ Switch network failed.");
       }
     }
-
-    /*
-      Обнаружение wallet-app по userAgent.
-      Если находим 'trust' или 'metamask' в ua, 
-      добавляем класс к body (wallet-trust или wallet-metamaskmobile).
-      Так можно чуть подправить стили специально под кошелёк.
-    */
-    function detectWalletApp() {
-      const ua = navigator.userAgent.toLowerCase();
-      if (ua.includes('trust')) {
-        document.body.classList.add('wallet-trust');
-      } else if (ua.includes('metamask')) {
-        document.body.classList.add('wallet-metamaskmobile');
-      }
-    }
-
-    // Запускаем функцию при загрузке страницы
-    window.addEventListener('DOMContentLoaded', () => {
-      detectWalletApp();
-      // При старте показываем вкладку 'stake' (по умолчанию)
-      showTab('stake');
-    });
   </script>
-
-  <!-- Подключаем ваш script.js, где есть connectWallet(), stakeTokens(), unstakeTokens() и т.д. -->
-  <script src="script.js"></script>
 </body>
 </html>
+
