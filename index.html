@@ -225,18 +225,11 @@
 
   async function connectWallet() {
     const providerOptions = {
-  metamask: {
+  injected: {
     package: null,
     display: {
-      name: "MetaMask",
-      description: "Connect with MetaMask Extension"
-    }
-  },
-  trustwallet: {
-    package: null,
-    display: {
-      name: "Trust Wallet",
-      description: "Connect with Trust Wallet Extension"
+      name: "MetaMask / Trust Wallet",
+      description: "Connect with browser wallet"
     }
   },
   walletconnect: {
