@@ -106,8 +106,44 @@
       background: linear-gradient(to right, #007bff, #00ffff);
     }
 
-    h1 {
-      margin-bottom: 30px;
+    .balances {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #90ee90;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #00ffff;
+      margin-bottom: 10px;
+    }
+
+    .wallet-slideout {
+      position: absolute;
+      top: 70px;
+      right: 40px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px solid #00ffff;
+      border-radius: 12px;
+      padding: 20px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .wallet-slideout p {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .wallet-slideout button {
+      background: linear-gradient(to right, #ff4e50, #f9d423);
+      color: black;
+      font-weight: bold;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -125,11 +161,18 @@
         <option disabled>OPTIMISM (coming soon)</option>
       </select>
     </div>
-    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+    <button id="connectBtn" onclick="toggleWalletInfo()">🔗 Connect Wallet</button>
+  </div>
+
+  <div class="wallet-slideout" id="walletSlideout">
+    <p id="walletAddress">Address: -</p>
+    <p id="walletBalances">MAX: 0 | StMAX: 0</p>
+    <button onclick="disconnectWallet()">Disconnect</button>
   </div>
 
   <div class="container">
     <h1>StMAX Wrapper</h1>
+    <div class="subtitle">First Cross Chain Meme Proof Of Farm</div>
 
     <div id="stakeTab">
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
@@ -149,8 +192,81 @@
       document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
     }
-  </script>
 
-  <script src="script.js"></script>
+    let web3Modal;
+    let provider;
+    let signer;
+    let userAddress;
+
+    async function toggleWalletInfo() {
+      if (!provider) {
+        await connectWallet();
+        return;
+      }
+      const slideout = document.getElementById("walletSlideout");
+      slideout.style.display = slideout.style.display === "none" ? "block" : "none";
+    }
+
+    async function connectWallet() {
+      const providerOptions = {
+        walletconnect: {
+          package: window.WalletConnectProvider.default,
+          options: {
+            infuraId: "1c54aa3c993b4d94b73c84e833971254"
+          }
+        }
+      };
+
+      web3Modal = new window.Web3Modal.default({
+        cacheProvider: false,
+        providerOptions
+      });
+
+      try {
+        const instance = await web3Modal.connect();
+        provider = new ethers.providers.Web3Provider(instance);
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        document.getElementById("connectBtn").innerText = `🔌 ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        document.getElementById("walletAddress").innerText = `Address: ${userAddress}`;
+
+        await updateBalances();
+      } catch (err) {
+        console.error("Connection failed:", err);
+        alert("❌ Failed to connect wallet");
+      }
+    }
+
+    async function disconnectWallet() {
+      if (web3Modal) {
+        await web3Modal.clearCachedProvider();
+        provider = null;
+        signer = null;
+        userAddress = null;
+        document.getElementById("connectBtn").innerText = "🔗 Connect Wallet";
+        document.getElementById("walletSlideout").style.display = "none";
+      }
+    }
+
+    async function updateBalances() {
+      if (!signer || !userAddress) return;
+
+      const tokenAddress = "0xYourOriginalTokenAddress"; // вставь адрес MAX
+      const wrapperAddress = "0xYourWrappedTokenAddress"; // вставь адрес StMAX
+
+      const abi = ["function balanceOf(address) view returns (uint256)"];
+      const erc20 = new ethers.Contract(tokenAddress, abi, provider);
+      const stmax = new ethers.Contract(wrapperAddress, abi, provider);
+
+      const [balMax, balStmax] = await Promise.all([
+        erc20.balanceOf(userAddress),
+        stmax.balanceOf(userAddress)
+      ]);
+
+      document.getElementById("walletBalances").innerText =
+        `MAX: ${ethers.utils.formatUnits(balMax, 18)} | StMAX: ${ethers.utils.formatUnits(balStmax, 18)}`;
+    }
+  </script>
 </body>
 </html>
