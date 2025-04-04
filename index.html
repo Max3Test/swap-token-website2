@@ -252,8 +252,8 @@
     async function updateBalances() {
       if (!signer || !userAddress) return;
 
-      const tokenAddress = "0xYourOriginalTokenAddress"; // вставь адрес MAX
-      const wrapperAddress = "0xYourWrappedTokenAddress"; // вставь адрес StMAX
+      const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // вставь адрес MAX
+      const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // вставь адрес StMAX
 
       const abi = ["function balanceOf(address) view returns (uint256)"];
       const erc20 = new ethers.Contract(tokenAddress, abi, provider);
