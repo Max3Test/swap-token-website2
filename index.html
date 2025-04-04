@@ -55,6 +55,7 @@
       text-align: center;
       max-width: 400px;
       width: 90%;
+      margin-top: 100px;
     }
 
     h1 {
@@ -111,6 +112,12 @@
       background: #00ffff;
       color: #000;
     }
+
+    .balance-display {
+      margin-top: 10px;
+      color: #90ee90;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -126,6 +133,7 @@
 
   <div class="glass-box">
     <h1>StMAX Staking</h1>
+    <div id="walletBalance" class="balance-display"></div>
 
     <div id="stakeContent">
       <input type="number" id="stakeAmount" placeholder="Enter amount to stake">
@@ -143,8 +151,15 @@
     let signer;
 
     function showTab(tab) {
-      document.getElementById('stakeContent').style.display = tab === 'stake' ? 'block' : 'none';
-      document.getElementById('unstakeContent').style.display = tab === 'unstake' ? 'block' : 'none';
+      const fadeOut = tab === 'stake' ? 'unstakeContent' : 'stakeContent';
+      const fadeIn = tab === 'stake' ? 'stakeContent' : 'unstakeContent';
+
+      document.getElementById(fadeOut).style.opacity = 0;
+      setTimeout(() => {
+        document.getElementById(fadeOut).style.display = 'none';
+        document.getElementById(fadeIn).style.display = 'block';
+        document.getElementById(fadeIn).style.opacity = 1;
+      }, 300);
 
       document.getElementById('stakeTabBtn').classList.toggle('active', tab === 'stake');
       document.getElementById('unstakeTabBtn').classList.toggle('active', tab === 'unstake');
@@ -172,6 +187,15 @@
         const address = await signer.getAddress();
         const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
         document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
+
+        const balance = await provider.getBalance(address);
+        const formatted = ethers.utils.formatEther(balance);
+        document.getElementById("walletBalance").innerText = `Balance: ${parseFloat(formatted).toFixed(4)} ETH`;
+
+        const network = await provider.getNetwork();
+        if (network.chainId !== 42161) {
+          alert("Please switch to Arbitrum network");
+        }
       } catch (err) {
         console.error("Connection failed:", err);
         alert("❌ Failed to connect wallet");
