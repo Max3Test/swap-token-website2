@@ -61,22 +61,13 @@
       color: black;
     }
 
-    .title-banner {
-      font-size: 32px;
-      font-weight: bold;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
-      margin-top: 80px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
     .mega-title {
       font-size: 4em; /* 4x bigger than default 1em titles */
       margin-bottom: 20px;
       text-align: center;
       color: #00ffff;
       text-shadow: 0 0 15px #00ffff;
+      margin-top: 80px;
     }
 
     .container {
@@ -89,8 +80,19 @@
       width: 90%;
     }
 
+    /* Убираем стрелки (spin) в разных браузерах */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield; /* Firefox */
+    }
+
+    /* Делаем поле уже, вместо 100% */
     input[type="number"] {
-      width: 100%;
+      width: 60%;       /* Можно менять по вкусу: 200px, 70%, и т.д. */
       padding: 12px;
       margin-bottom: 20px;
       font-size: 16px;
@@ -132,10 +134,7 @@
   <div class="mega-title">First Cross Chain Meme Proof Of Farm</div>
 
   <div class="container">
-    <!-- Вместо <h1>, делаем обычный абзац -->
-    <p style="font-size: 1.5em; margin-bottom: 1em; font-weight: bold;">
-      Start Farming now with StMAX
-    </p>
+    <h1>Start Farming now with StMAX</h1>
 
     <!-- Wrap tab content -->
     <div id="wrapTab">
@@ -161,9 +160,9 @@
       document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
     }
   </script>
-
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
