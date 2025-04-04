@@ -29,11 +29,18 @@
       width: 100%;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 0 40px;
       box-sizing: border-box;
     }
 
-    .top-bar .tabs {
+    .top-bar .left-panel {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .tabs {
       display: flex;
       gap: 10px;
     }
@@ -51,6 +58,16 @@
     .tab-button.active {
       background: #00ffff;
       color: #000;
+    }
+
+    .network-select {
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      border: 2px solid #00ffff;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #00ffff;
+      cursor: not-allowed;
     }
 
     .container {
@@ -96,9 +113,17 @@
 </head>
 <body>
   <div class="top-bar">
-    <div class="tabs">
-      <button class="tab-button active" onclick="showTab('stake')">Stake</button>
-      <button class="tab-button" onclick="showTab('unstake')">Unstake</button>
+    <div class="left-panel">
+      <div class="tabs">
+        <button class="tab-button active" onclick="showTab('stake')">Stake</button>
+        <button class="tab-button" onclick="showTab('unstake')">Unstake</button>
+      </div>
+      <select class="network-select" disabled>
+        <option selected>BASE</option>
+        <option disabled>ARBITRUM (coming soon)</option>
+        <option disabled>BNB (coming soon)</option>
+        <option disabled>OPTIMISM (coming soon)</option>
+      </select>
     </div>
     <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
   </div>
