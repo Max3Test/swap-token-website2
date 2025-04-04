@@ -27,6 +27,7 @@
       top: 40px;
       right: 40px;
     }
+
     .top-bar button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -44,6 +45,7 @@
       display: flex;
       gap: 10px;
     }
+
     .tabs button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -53,13 +55,14 @@
       border-radius: 10px;
       cursor: pointer;
     }
+
     .tabs button.active {
       background: #00ffff;
       color: black;
     }
 
     .mega-title {
-      font-size: 4em;
+      font-size: 4em; /* 4x bigger than default 1em titles */
       margin-bottom: 20px;
       text-align: center;
       color: #00ffff;
@@ -77,44 +80,58 @@
       width: 90%;
     }
 
-    /* Убираем стрелки (spin) в разных браузерах */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type=number] {
-      -moz-appearance: textfield; /* Firefox */
-    }
-
-    /* Делаем поле и кнопку одной ширины */
-    input[type="number"],
-    button.action {
-      width: 80%;
-      margin: 0 auto 20px auto; /* отступы сверху/снизу */
-      display: block; /* чтобы выровнять по центру */
-    }
-
     input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
       font-size: 16px;
       border-radius: 10px;
       border: none;
       text-align: center;
-      padding: 12px;
     }
 
     button.action {
+      width: 100%;
+      padding: 12px;
       font-size: 16px;
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       border-radius: 10px;
       color: white;
       cursor: pointer;
-      padding: 12px;
       margin-bottom: 10px;
     }
+
     button.action:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
+    }
+
+    /* ============ Адаптивная версия для мобильных (экраны < 600px) ============ */
+    @media (max-width: 600px) {
+      /* Уменьшаем отступы .top-bar и .tabs */
+      .top-bar {
+        top: 10px;
+        right: 10px;
+      }
+      .tabs {
+        top: 10px;
+        left: 10px;
+      }
+      /* Уменьшаем размеры контейнера и шрифт заголовка */
+      .mega-title {
+        font-size: 2.5em;
+        margin-top: 60px;
+      }
+      .container {
+        padding: 20px;
+        max-width: 350px;
+      }
+      input[type="number"] {
+        font-size: 14px;
+      }
+      button.action {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -160,6 +177,7 @@
       document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
     }
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
