@@ -39,8 +39,8 @@ async function stakeTokens() {
   }
 
   try {
-    const tokenAddress = "0xYourOriginalTokenAddress"; // 👉 ВСТАВЬ сюда адрес MAX
-    const wrapperAddress = "0xYourWrappedTokenAddress"; // 👉 ВСТАВЬ сюда адрес контракта StMAX
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // MAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; //  StMAX
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -70,7 +70,7 @@ async function unstakeTokens() {
   }
 
   try {
-    const wrapperAddress = "0xYourWrappedTokenAddress"; // 👉 ВСТАВЬ сюда адрес StMAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
