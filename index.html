@@ -22,7 +22,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .top-bar {
       width: 100%;
       display: flex;
@@ -34,7 +33,6 @@
       top: 0;
       left: 0;
     }
-
     .connect-button button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
@@ -45,7 +43,6 @@
       cursor: pointer;
       margin-left: 20px;
     }
-
     .network-select {
       background: #000000aa;
       border: 1px solid #00ffff;
@@ -55,7 +52,6 @@
       font-size: 14px;
       cursor: pointer;
     }
-
     .glass-box {
       background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(12px);
@@ -67,13 +63,11 @@
       width: 90%;
       margin-top: 100px;
     }
-
     h1 {
       font-size: 32px;
       color: #00ffff;
       margin-bottom: 20px;
     }
-
     input[type="number"] {
       width: 100%;
       padding: 14px;
@@ -83,7 +77,6 @@
       margin-bottom: 20px;
       text-align: center;
     }
-
     button.action-btn {
       width: 100%;
       background: linear-gradient(to right, #00ffff, #007bff);
@@ -96,18 +89,15 @@
       transition: all 0.3s ease;
       margin-top: 10px;
     }
-
     button.action-btn:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
-
     .tab-buttons {
       display: flex;
       justify-content: flex-end;
       align-items: center;
       gap: 10px;
     }
-
     .tab-buttons button {
       background: transparent;
       border: 2px solid #00ffff;
@@ -117,12 +107,10 @@
       cursor: pointer;
       font-weight: bold;
     }
-
     .tab-buttons button.active {
       background: #00ffff;
       color: #000;
     }
-
     .balance-display {
       margin-top: 10px;
       color: #90ee90;
@@ -152,12 +140,10 @@
   <div class="glass-box">
     <h1>StMAX Staking</h1>
     <div id="walletBalance" class="balance-display"></div>
-
     <div id="stakeContent">
       <input type="number" id="stakeAmount" placeholder="Enter amount to stake">
       <button class="action-btn" onclick="stakeTokens()">Stake</button>
     </div>
-
     <div id="unstakeContent" style="display: none;">
       <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake">
       <button class="action-btn" onclick="unstakeTokens()">Unstake</button>
@@ -171,14 +157,12 @@
     function showTab(tab) {
       const fadeOut = tab === 'stake' ? 'unstakeContent' : 'stakeContent';
       const fadeIn = tab === 'stake' ? 'stakeContent' : 'unstakeContent';
-
       document.getElementById(fadeOut).style.opacity = 0;
       setTimeout(() => {
         document.getElementById(fadeOut).style.display = 'none';
         document.getElementById(fadeIn).style.display = 'block';
         document.getElementById(fadeIn).style.opacity = 1;
       }, 300);
-
       document.getElementById('stakeTabBtn').classList.toggle('active', tab === 'stake');
       document.getElementById('unstakeTabBtn').classList.toggle('active', tab === 'unstake');
     }
@@ -187,9 +171,7 @@
       const providerOptions = {
         walletconnect: {
           package: window.WalletConnectProvider.default,
-          options: {
-            infuraId: "1c54aa3c993b4d94b73c84e833971254"
-          }
+          options: { infuraId: "1c54aa3c993b4d94b73c84e833971254" }
         }
       };
 
@@ -209,6 +191,10 @@
         const balance = await provider.getBalance(address);
         const formatted = ethers.utils.formatEther(balance);
         document.getElementById("walletBalance").innerText = `Balance: ${parseFloat(formatted).toFixed(4)} ETH`;
+
+        instance.on("accountsChanged", () => location.reload());
+        instance.on("chainChanged", () => location.reload());
+        instance.on("disconnect", () => location.reload());
       } catch (err) {
         console.error("Connection failed:", err);
         alert("❌ Failed to connect wallet");
