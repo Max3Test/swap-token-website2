@@ -1,235 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StMAX Stake</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-  <script src="https://unpkg.com/web3modal"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: url('TOKENOMIC.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #ffffff;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      box-sizing: border-box;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    .connect-button button {
-      background: linear-gradient(to right, #00ffff, #007bff);
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      font-size: 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-left: 20px;
-    }
-    .network-select {
-      background: #000000aa;
-      border: 1px solid #00ffff;
-      color: #00ffff;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .glass-box {
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      margin-top: 100px;
-    }
-    h1 {
-      font-size: 32px;
-      color: #00ffff;
-      margin-bottom: 20px;
-    }
-    input[type="number"] {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      font-size: 18px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    button.action-btn {
-      width: 100%;
-      background: linear-gradient(to right, #00ffff, #007bff);
-      border: none;
-      color: white;
-      padding: 12px 16px;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
-    }
-    button.action-btn:hover {
-      background: linear-gradient(to right, #007bff, #00ffff);
-    }
-    .tab-buttons {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
-    }
-    .tab-buttons button {
-      background: transparent;
-      border: 2px solid #00ffff;
-      color: #00ffff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .tab-buttons button.active {
-      background: #00ffff;
-      color: #000;
-    }
-    .balance-display {
-      margin-top: 10px;
-      color: #90ee90;
-      font-size: 14px;
-    }
-  </style>
-</head>
-<body>
-  <div class="top-bar">
-    <div class="tab-buttons">
-      <button id="stakeTabBtn" class="active" onclick="showTab('stake')">Stake</button>
-      <button id="unstakeTabBtn" onclick="showTab('unstake')">Unstake</button>
-    </div>
-    <div style="display: flex; align-items: center;">
-      <select id="networkSelect" class="network-select" onchange="switchNetwork()">
-        <option value="42161">Arbitrum</option>
-        <option value="8453">Base</option>
-        <option value="10">Optimism</option>
-        <option value="56">BNB Chain</option>
-      </select>
-      <div class="connect-button">
-        <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="glass-box">
-    <h1>StMAX Staking</h1>
-    <div id="walletBalance" class="balance-display"></div>
-    <div id="stakeContent">
-      <input type="number" id="stakeAmount" placeholder="Enter amount to stake">
-      <button class="action-btn" onclick="stakeTokens()">Stake</button>
-    </div>
-    <div id="unstakeContent" style="display: none;">
-      <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake">
-      <button class="action-btn" onclick="unstakeTokens()">Unstake</button>
-    </div>
-  </div>
-
-  <script>
+<script>
     let provider;
     let signer;
-
-    function showTab(tab) {
-      const fadeOut = tab === 'stake' ? 'unstakeContent' : 'stakeContent';
-      const fadeIn = tab === 'stake' ? 'stakeContent' : 'unstakeContent';
-      document.getElementById(fadeOut).style.opacity = 0;
-      setTimeout(() => {
-        document.getElementById(fadeOut).style.display = 'none';
-        document.getElementById(fadeIn).style.display = 'block';
-        document.getElementById(fadeIn).style.opacity = 1;
-      }, 300);
-      document.getElementById('stakeTabBtn').classList.toggle('active', tab === 'stake');
-      document.getElementById('unstakeTabBtn').classList.toggle('active', tab === 'unstake');
-    }
-
+    
+    // Подключение кошелька
     async function connectWallet() {
       const providerOptions = {
         walletconnect: {
           package: window.WalletConnectProvider.default,
-          options: { infuraId: "1c54aa3c993b4d94b73c84e833971254" }
+          options: {
+            infuraId: "1c54aa3c993b4d94b73c84e833971254"
+          }
         }
       };
-
+    
       const web3Modal = new window.Web3Modal.default({
         cacheProvider: false,
         providerOptions
       });
-
+    
       try {
         const instance = await web3Modal.connect();
         provider = new ethers.providers.Web3Provider(instance);
         signer = provider.getSigner();
+    
         const address = await signer.getAddress();
         const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
         document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
-
-        const balance = await provider.getBalance(address);
-        const formatted = ethers.utils.formatEther(balance);
-        document.getElementById("walletBalance").innerText = `Balance: ${parseFloat(formatted).toFixed(4)} ETH`;
-
-        instance.on("accountsChanged", () => location.reload());
-        instance.on("chainChanged", () => location.reload());
-        instance.on("disconnect", () => location.reload());
       } catch (err) {
         console.error("Connection failed:", err);
         alert("❌ Failed to connect wallet");
       }
     }
-
-    async function switchNetwork() {
-      const chainId = document.getElementById("networkSelect").value;
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x' + parseInt(chainId).toString(16) }],
-        });
-      } catch (switchError) {
-        alert("Please add this network manually in your wallet");
-      }
-    }
-
+    
+    // Взаимодействие с Wrapped Token (обёртка)
     async function stakeTokens() {
       const amount = document.getElementById("stakeAmount").value;
       if (!amount || amount <= 0) {
         alert("Please enter a valid amount");
         return;
       }
-      alert(`Staking ${amount} StMAX... (placeholder)`);
+    
+      try {
+        const tokenAddress = "0xYourOriginalTokenAddress"; // Укажи адрес MAX
+        const wrapperAddress = "0xYourWrappedTokenAddress"; // Укажи адрес StMAX
+    
+        const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+        const wrapperABI = ["function deposit(uint256 amount) external"];
+    
+        const token = new ethers.Contract(tokenAddress, tokenABI, signer);
+        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
+        const value = ethers.utils.parseUnits(amount, 18);
+    
+        const tx1 = await token.approve(wrapperAddress, value);
+        await tx1.wait();
+    
+        const tx2 = await wrapper.deposit(value);
+        await tx2.wait();
+    
+        alert(`✅ Successfully deposited ${amount} tokens`);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Deposit failed");
+      }
     }
-
+    
     async function unstakeTokens() {
       const amount = document.getElementById("unstakeAmount").value;
       if (!amount || amount <= 0) {
         alert("Please enter a valid amount");
         return;
       }
-      alert(`Unstaking ${amount} StMAX... (placeholder)`);
+    
+      try {
+        const wrapperAddress = "0xYourWrappedTokenAddress"; // Укажи адрес StMAX
+        const wrapperABI = ["function withdraw(uint256 amount) external"];
+        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
+        const value = ethers.utils.parseUnits(amount, 18);
+    
+        const tx = await wrapper.withdraw(value);
+        await tx.wait();
+    
+        alert(`✅ Successfully withdrew ${amount} tokens`);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Withdraw failed");
+      }
     }
-  </script>
-</body>
-</html>
+    </script>
+    
