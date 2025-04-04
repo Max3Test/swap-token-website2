@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Gate to Farm</title>
+  <title>StMAX Swap</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
@@ -61,13 +61,22 @@
       color: black;
     }
 
+    .title-banner {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-top: 80px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
     .mega-title {
       font-size: 4em; /* 4x bigger than default 1em titles */
       margin-bottom: 20px;
       text-align: center;
       color: #00ffff;
       text-shadow: 0 0 15px #00ffff;
-      margin-top: 80px;
     }
 
     .container {
@@ -78,16 +87,6 @@
       text-align: center;
       max-width: 400px;
       width: 90%;
-    }
-
-    /* Убираем стрелочки (spin) в разных браузерах */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type=number] {
-      -moz-appearance: textfield; /* для Firefox */
     }
 
     input[type="number"] {
@@ -130,11 +129,13 @@
   </div>
 
   <!-- Big Title Banner -->
-  <div class="mega-title">First Cross Chain Meme</div>
-  <div class="mega-title">with Proof Of Farm</div>
+  <div class="mega-title">First Cross Chain Meme Proof Of Farm</div>
 
   <div class="container">
-    <h1>Start Farming now with StMAX</h1>
+    <!-- Вместо <h1>, делаем обычный абзац -->
+    <p style="font-size: 1.5em; margin-bottom: 1em; font-weight: bold;">
+      Start Farming now with StMAX
+    </p>
 
     <!-- Wrap tab content -->
     <div id="wrapTab">
@@ -160,7 +161,9 @@
       document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
     }
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
+
 
