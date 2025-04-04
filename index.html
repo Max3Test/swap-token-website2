@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StMAX Swap</title>
+  <title>StMAX Stake</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
@@ -71,15 +71,54 @@
     button:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tab-buttons button {
+      width: auto;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+
+    .tab-content {
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.5s ease, max-height 0.5s ease;
+    }
+
+    .tab-content.active {
+      opacity: 1;
+      max-height: 500px;
+    }
   </style>
 </head>
 <body>
   <div class="glass-box">
-    <h1>Swap MAX → StMAX</h1>
-    <input type="number" id="maxAmount" placeholder="Enter MAX amount" oninput="calculateStMAX()">
-    <div class="result" id="stmaxOutput">You will receive: 0 StMAX</div>
-    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-    <button onclick="swapTokens()">Swap</button>
+    <h1>StMAX Staking</h1>
+
+    <div class="tab-buttons">
+      <button onclick="showTab('stake')">Stake</button>
+      <button onclick="showTab('unstake')">Unstake</button>
+    </div>
+
+    <div id="stakeTab" class="tab-content active">
+      <input type="number" id="stakeAmount" placeholder="Enter amount to stake">
+      <div class="result" id="stakeOutput">Ready to stake</div>
+      <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <button onclick="stakeTokens()">Stake</button>
+    </div>
+
+    <div id="unstakeTab" class="tab-content">
+      <input type="number" id="unstakeAmount" placeholder="Enter amount to unstake">
+      <div class="result" id="unstakeOutput">Ready to unstake</div>
+      <button id="connectBtn2" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <button onclick="unstakeTokens()">Unstake</button>
+    </div>
   </div>
 
   <script>
@@ -87,10 +126,9 @@
     let provider;
     let signer;
 
-    function calculateStMAX() {
-      const input = document.getElementById("maxAmount").value;
-      const output = input * rate;
-      document.getElementById("stmaxOutput").innerText = `You will receive: ${output || 0} StMAX`;
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab + 'Tab').classList.add('active');
     }
 
     async function connectWallet() {
@@ -98,7 +136,7 @@
         walletconnect: {
           package: window.WalletConnectProvider.default,
           options: {
-            infuraId: "1c54aa3c993b4d94b73c84e833971254" // demo infura ID, can be changed
+            infuraId: "1c54aa3c993b4d94b73c84e833971254"
           }
         }
       };
@@ -114,21 +152,29 @@
         signer = provider.getSigner();
         const address = await signer.getAddress();
         const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-        document.getElementById("connectBtn").innerText = `🔗 ${shortAddress}`;
+        document.querySelectorAll("#connectBtn, #connectBtn2").forEach(btn => btn.innerText = `🔗 ${shortAddress}`);
       } catch (err) {
         console.error("Connection failed:", err);
         alert("❌ Failed to connect wallet");
       }
     }
 
-    async function swapTokens() {
-      const amount = document.getElementById("maxAmount").value;
+    async function stakeTokens() {
+      const amount = document.getElementById("stakeAmount").value;
       if (!amount || amount <= 0) {
         alert("Please enter a valid amount");
         return;
       }
+      alert(`Staking ${amount} StMAX... (placeholder)`);
+    }
 
-      alert(`Swapping ${amount} MAX for StMAX... (placeholder logic)`);
+    async function unstakeTokens() {
+      const amount = document.getElementById("unstakeAmount").value;
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
+      alert(`Unstaking ${amount} StMAX... (placeholder)`);
     }
   </script>
 </body>
