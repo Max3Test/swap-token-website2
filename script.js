@@ -31,7 +31,13 @@ async function connectWallet() {
   }
 }
 
+// Взаимодействие с Wrapped Token (обёртка)
 async function stakeTokens() {
+  if (!signer) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
   const amount = document.getElementById("stakeAmount").value;
   if (!amount || amount <= 0) {
     alert("Please enter a valid amount");
@@ -40,7 +46,7 @@ async function stakeTokens() {
 
   try {
     const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; //  StMAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // StMAX
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -55,7 +61,7 @@ async function stakeTokens() {
     const tx2 = await wrapper.deposit(value);
     await tx2.wait();
 
-    alert(`✅ Successfully deposited ${amount} tokens`);
+    alert(`✅ Successfully deposited ${amount} MAX`);
   } catch (err) {
     console.error(err);
     alert("❌ Deposit failed");
@@ -63,6 +69,11 @@ async function stakeTokens() {
 }
 
 async function unstakeTokens() {
+  if (!signer) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
   const amount = document.getElementById("unstakeAmount").value;
   if (!amount || amount <= 0) {
     alert("Please enter a valid amount");
@@ -78,7 +89,7 @@ async function unstakeTokens() {
     const tx = await wrapper.withdraw(value);
     await tx.wait();
 
-    alert(`✅ Successfully withdrew ${amount} tokens`);
+    alert(`✅ Successfully withdrew ${amount} MAX`);
   } catch (err) {
     console.error(err);
     alert("❌ Withdraw failed");
