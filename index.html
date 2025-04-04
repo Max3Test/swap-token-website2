@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Token Swap</title>
+  <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    input, button { margin: 10px; padding: 10px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Wrapped Token Swap</h1>
+
+  <button onclick="connect()">🔗 Connect Wallet</button>
+
+  <div style="margin-top: 30px;">
+    <input type="text" id="amount" placeholder="Amount to swap" />
+    <br />
+    <button onclick="swap()">Swap</button>
+  </div>
+
+  <p id="status"></p>
+
+  <script src="script.js"></script>
+</body>
+</html>
