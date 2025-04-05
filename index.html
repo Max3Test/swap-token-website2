@@ -12,6 +12,9 @@
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
 
+  <!-- Подключаем Axelar SDK (UMD) -->
+  <script src="https://unpkg.com/@axelar-network/axelarjs-sdk/dist/index.umd.js"></script>
+
   <!-- Подключаем шрифт Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
@@ -188,7 +191,7 @@
   </style>
 </head>
 <body>
-  <!-- Левая панель: Stake/Unstake, друг под другом -->
+  <!-- Левая панель: Stake / Unstake, друг под другом -->
   <div class="left-panel">
     <button onclick="showTab('stake')">Farm</button>
     <button onclick="showTab('unstake')">UnFarm</button>
@@ -207,48 +210,48 @@
     <h1>Start your trip to Farm with STMAX</h1>
     <hr style="margin: 20px 0;">
     
-    <!-- Вкладка для Stake -->
+    <!-- Вкладка для Stake (MAX → StMAX) -->
     <div id="stakeTab" class="tab-content">
       <h3>Farm MAX → StMAX</h3>
       <input type="number" id="stakeAmount" placeholder="Amount to Farm" />
-      <!-- Где вставить адреса контрактов? Ниже в script.js в stakeTokens() и unstakeTokens(). -->
+      <!-- Вместо 'const tokenAddress = ""' укажите адрес MAX-токена 
+           Вместо 'const wrapperAddress = ""' укажите StMAX-контракт 
+           внутри stakeTokens() и unstakeTokens(). -->
       <button onclick="stakeTokens()">Farm</button>
     </div>
 
-    <!-- Вкладка для Unstake -->
+    <!-- Вкладка для Unstake (StMAX → MAX) -->
     <div id="unstakeTab" class="tab-content">
       <h3>UnFarm StMAX → MAX</h3>
       <input type="number" id="unstakeAmount" placeholder="Amount to UnFarm" />
-      <!-- Аналогично в script.js (unstakeTokens()) добавить адрес wrapper для StMAX. -->
       <button onclick="unstakeTokens()">UnFarm</button>
     </div>
 
-    <!-- Шторка-выбор сетей и токенов для бриджа -->
+    <!-- Шторка Axelar Bridge (с mainnet) -->
     <hr style="margin: 20px 0;">
-    <h3>Axelar Bridge</h3>
-    <!-- Выпадайки для выбора исходной и целевой сетей -->
+    <h3>Axelar Bridge (Mainnet)</h3>
+    <!-- Выбор исходной сети -->
     <select id="fromChain">
-      <option value="BaseTestnet">BASE</option>
-      <option value="ArbitrumTestnet">ARB</option>
-      <option value="OptimismTestnet">OP</option>
-      <option value="BnbChainTestnet">BNB</option>
-      <option value="EthereumTestnet">ETH</option>
+      <option value="base">BASE</option>
+      <option value="arbitrum">ARB</option>
+      <option value="optimism">OP</option>
+      <option value="binance">BNB</option>
+      <option value="ethereum">ETH</option>
     </select>
+    <!-- Выбор целевой сети -->
     <select id="toChain">
-      <option value="BaseTestnet">BASE</option>
-      <option value="ArbitrumTestnet">ARB</option>
-      <option value="OptimismTestnet">OP</option>
-      <option value="BnbChainTestnet">BNB</option>
-      <option value="EthereumTestnet">ETH</option>
+      <option value="base">BASE</option>
+      <option value="arbitrum">ARB</option>
+      <option value="optimism">OP</option>
+      <option value="binance">BNB</option>
+      <option value="ethereum">ETH</option>
     </select>
-    <!-- Токен символ: только MAX или StMAX -->
+    <!-- Выбор токена: MAX или StMAX -->
     <select id="bridgeTokenSymbol">
-      <option value="MAX">0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e</option>
+      <option value="MAX">MAX</option>
       <option value="StMAX">StMAX</option>
     </select>
-    <!-- Сколько бриджим -->
     <input type="number" id="bridgeAmount" placeholder="Amount to Bridge" />
-    <!-- Кнопка для бриджа через Axelar -->
     <button onclick="bridgeWithAxelarUI()">Bridge with Axelar</button>
   </div>
 
@@ -257,9 +260,10 @@
     // При загрузке показываем вкладку stake
     window.addEventListener('DOMContentLoaded', () => {
       showTab('stake');
-      detectWalletApp(); // При желании определяем Trust / Metamask
+      detectWalletApp(); // если хотим определить Trust / Metamask
     });
 
+    // Функция переключения вкладок
     function showTab(tab) {
       const stakeTab = document.getElementById('stakeTab');
       const unstakeTab = document.getElementById('unstakeTab');
@@ -279,10 +283,7 @@
       }
     }
 
-    /* 
-      Пример switchNetwork, если хотим подключаться к Base (0x2105).
-      Логика в script.js (реальная).
-    */
+    // Пример switchNetwork для Base (0x2105)
     async function switchNetwork(chainIdHex) {
       if (!window.ethereum) {
         return alert("No wallet found.");
@@ -299,10 +300,7 @@
       }
     }
 
-    /* 
-      Определение wallet-app (Trust, Metamask mobile) по userAgent
-      и добавление соответствующего класса к body.
-    */
+    // Detect wallet app (Trust, Metamask Mobile)
     function detectWalletApp() {
       const ua = navigator.userAgent.toLowerCase();
       if (ua.includes('trust')) {
@@ -312,23 +310,19 @@
       }
     }
 
-    /*
-      Функция моста: читает выпадайки + поле bridgeAmount,
-      и вызывает bridgeWithAxelar(...) из script.js
-    */
+    // UI-функция для Axelar Bridge
     async function bridgeWithAxelarUI() {
-      const fromChain = document.getElementById('fromChain').value;
-      const toChain = document.getElementById('toChain').value;
-      const tokenSymbol = document.getElementById('bridgeTokenSymbol').value;
-      const amount = document.getElementById('bridgeAmount').value;
-
-      if (!fromChain || !toChain || !tokenSymbol || !amount) {
+      const from = document.getElementById("fromChain").value;
+      const to = document.getElementById("toChain").value;
+      const symbol = document.getElementById("bridgeTokenSymbol").value;
+      const amt = document.getElementById("bridgeAmount").value;
+      if (!from || !to || !symbol || !amt) {
         return alert("Please fill all bridging fields!");
       }
-      // Вызываем реальную функцию в script.js
-      await bridgeWithAxelar(fromChain, toChain, tokenSymbol, amount);
+
+      // Вызываем bridgeWithAxelar (script.js)
+      await bridgeWithAxelar(from, to, symbol, amt);
     }
   </script>
 </body>
 </html>
-
