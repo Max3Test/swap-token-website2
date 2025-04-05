@@ -89,33 +89,53 @@ async function unstakeTokens() {
     return;
   }
 
-
 async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
   try {
-    const environment = "mainnet"; // Используем Mainnet Axelar
-    const axelar = new window.axelar.AxelarQueryAPI({ environment });
+    const environment = "mainnet";
+    const axelar = new window.axelar.AxelarGMPRecoveryAPI({ environment });
 
-    // Получаем адрес пользователя (куда придут токены)
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAddress = accounts[0];
 
-    // Проверка кастомных токенов MAX и StMAX
-    const supportedTokens = ["MAX", "StMAX"];
-    if (!supportedTokens.includes(tokenSymbol)) {
-      return alert(`❌ Токен ${tokenSymbol} не поддерживается Axelar или не интегрирован.`);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    // Указать адрес Axelar Gateway в вашей сети (например, Ethereum)
+    const axelarGatewayAddress = "0x4cF4F9cD7f541E2070743b59D0aD016F28E9dC16"; // пример для Ethereum Mainnet
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // MAX
+
+    const tokenABI = [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function allowance(address owner, address spender) view returns (uint256)"
+    ];
+
+    const gatewayABI = [
+      "function sendToken(string calldata destinationChain, string calldata destinationAddress, string calldata symbol, uint256 amount) external"
+    ];
+
+    const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
+    const gatewayContract = new ethers.Contract(axelarGatewayAddress, gatewayABI, signer);
+
+    const parsedAmount = ethers.utils.parseUnits(amount, 18);
+
+    // Одобряем Gateway на перевод токена
+    const allowance = await tokenContract.allowance(userAddress, axelarGatewayAddress);
+    if (allowance.lt(parsedAmount)) {
+      const approveTx = await tokenContract.approve(axelarGatewayAddress, parsedAmount);
+      await approveTx.wait();
     }
 
-    // Получаем depositAddress от Axelar Gateway
-    const depositAddress = await axelar.getDepositAddress({
-      fromChain: sourceChain.toLowerCase(),   // Например: "ethereum"
-      toChain: destChain.toLowerCase(),       // Например: "base"
-      destinationAddress: userAddress,
-      symbol: tokenSymbol.toUpperCase()       // Пример: "MAX"
-    });
+    // Отправляем токен через Axelar Gateway
+    const sendTx = await gatewayContract.sendToken(
+      destChain,              // Целевая сеть (напр. "base")
+      userAddress,            // Куда придут токены
+      tokenSymbol,            // Символ токена (напр. "MAX")
+      parsedAmount            // Сколько
+    );
 
-    console.log("Axelar deposit address:", depositAddress);
+    await sendTx.wait();
+    alert(`✅ Токен ${tokenSymbol} отправлен через Axelar в сеть ${destChain}`);
 
-    alert(`Отправьте ${amount} ${tokenSymbol} на:\n${depositAddress}\n\nAxelar отправит их в сеть ${destChain}.`);
   } catch (err) {
     console.error("Axelar Bridge error:", err);
     alert("❌ Ошибка при попытке моста через Axelar");
