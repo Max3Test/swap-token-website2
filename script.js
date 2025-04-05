@@ -90,64 +90,35 @@ async function unstakeTokens() {
   }
 
 
-
-// Пример Axelar SDK интеграции
-// Не нарушаем остальную логику, просто добавляем функцию
-// bridgeWithAxelar() в конец этого файла
-// Предполагаем, что мы используем environment: "testnet" или "mainnet"
-
-/*
-  Чтобы пользоваться AxelarJS SDK (AxelarQueryAPI, AxelarGMPAPI и т.д.),
-  нужно подключить пакет:
-    npm install @axelar-network/axelarjs-sdk
-  Или через <script> (UMD) — в таком случае:
-    <script src="https://unpkg.com/@axelar-network/axelarjs-sdk/dist/index.umd.js"></script>
-
-  Ниже — пример функции, которая просто демонстрирует, как мы могли бы
-  вызывать AxelarQueryAPI для получения depositAddress.
-*/
-
+  
 async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
   try {
-    // Пример: подключение AxelarQueryAPI
-    // В реальном проекте указываем environment: 'mainnet' или 'testnet'
-
-    // Если используем ESM:
-    // import { AxelarQueryAPI, Environment } from "@axelar-network/axelarjs-sdk";
-    // const axelar = new AxelarQueryAPI({ environment: Environment.TESTNET });
-
-    // При работе с UMD:
-    // const axelar = new window.axelar.AxelarQueryAPI({ environment: "testnet" });
-
-    // Далее: предполагаем, что у нас есть axelar объект
-    // Для простоты делаем вид, что мы уже подключили:
-
-    const environment = "mainnet"; // Или 'mainnet'
+    const environment = "mainnet"; // Используем Mainnet Axelar
     const axelar = new window.axelar.AxelarQueryAPI({ environment });
 
-    // Демонстрация: получаем depositAddress (как Satellite)
-    // На самом деле, вам нужно указать реальный chainId, tokenSymbol и т.д.
-    const depositAddress = await axelar.getDepositAddress(
-      {
-        fromChain: sourceChain,
-        toChain: destChain,
-        destinationAddress: "0xYourUserAddress", // куда придут токены
-        symbol: tokenSymbol,
-      }
-    );
+    // Получаем адрес пользователя (куда придут токены)
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const userAddress = accounts[0];
 
-    console.log("Deposit Address:", depositAddress);
+    // Получаем depositAddress от Axelar Gateway
+    const depositAddress = await axelar.getDepositAddress({
+      fromChain: sourceChain,       // пример: "ethereum"
+      toChain: destChain,           // пример: "base"
+      destinationAddress: userAddress,
+      symbol: tokenSymbol           // пример: "USDC" или ваш токен, если интегрирован в Axelar
+    });
 
-    alert(`Отправьте ${amount} ${tokenSymbol} на ${depositAddress}
-( Axelar отправит их в ${destChain} )`);
+    console.log("Axelar deposit address:", depositAddress);
 
-    // После отправки — Axelar автоматически перебросит.
-    // Можно добавить логику отслеживания статуса.
+    alert(`Отправьте ${amount} ${tokenSymbol} на:
+${depositAddress}
+\nAxelar отправит их в сеть ${destChain}.`);
   } catch (err) {
     console.error("Axelar Bridge error:", err);
-    alert("❌ Axelar bridge failed");
+    alert("❌ Ошибка при попытке моста через Axelar");
   }
 }
+
 
   try {
     const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
