@@ -1,3 +1,10 @@
+{
+  "name": "Stmax_with_axelar_integration",
+  "type": "code/html",
+  "content": "// We'll add the bridging UI now in the code"
+}
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +18,9 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
+
+  <!-- Для Axelar SDK (UMD): -->
+  <script src="https://unpkg.com/@axelar-network/axelarjs-sdk/dist/index.umd.js"></script>
 
   <!-- Подключаем шрифт Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
@@ -98,7 +108,8 @@
     }
 
     /* Поля ввода */
-    input[type="number"] {
+    input[type="number"],
+    input[type="text"] {
       width: 100%;
       padding: 12px;
       margin-bottom: 20px;
@@ -128,7 +139,7 @@
       margin-bottom: 30px;
     }
 
-    /* Добавляем анимацию fade для вкладок */
+    /* Анимация fade для вкладок */
     .tab-content {
       display: none; /* По умолчанию скрыты */
       opacity: 0;
@@ -159,7 +170,8 @@
         font-size: 18px;
         margin-bottom: 20px;
       }
-      input[type="number"] {
+      input[type="number"],
+      input[type="text"] {
         font-size: 14px;
         padding: 10px;
       }
@@ -218,6 +230,16 @@
       <input type="number" id="unstakeAmount" placeholder="Amount to UnFarm" />
       <button onclick="unstakeTokens()">UnFarm</button>
     </div>
+
+    <!-- Блок для Axelar-моста (UI) -->
+    <hr style="margin: 20px 30px;">
+    <h3>Axelar Bridge</h3>
+    <!-- Поля для выбора sourceChain, destChain, tokenSymbol, amount -->
+    <input type="text" id="fromChain" placeholder="From Chain (e.g. BaseTestnet)" />
+    <input type="text" id="toChain" placeholder="To Chain (e.g. BnbChainTestnet)" />
+    <input type="text" id="tokenSymbol" placeholder="Token Symbol (e.g. USDC)" />
+    <input type="text" id="bridgeAmount" placeholder="Amount to Bridge" />
+    <button onclick="bridgeWithAxelarUI()">Bridge with Axelar</button>
   </div>
 
   <script src="script.js"></script>
@@ -225,22 +247,22 @@
     // При загрузке показываем вкладку stake
     window.addEventListener('DOMContentLoaded', () => {
       showTab('stake');
+      detectWalletApp(); // если хотим определить wallet-app
     });
 
+    /* Функция переключения вкладок (Farm / UnFarm) */
     function showTab(tab) {
-      // Получаем ссылки на вкладки
       const stakeTab = document.getElementById('stakeTab');
       const unstakeTab = document.getElementById('unstakeTab');
 
-      // Сначала скрываем обе вкладки
+      // Скрываем обе вкладки
       stakeTab.style.display = 'none';
       unstakeTab.style.display = 'none';
 
-      // Убираем анимированный класс
+      // Убираем класс fade
       stakeTab.classList.remove('fade');
       unstakeTab.classList.remove('fade');
 
-      // Включаем нужную вкладку + анимацию
       if (tab === 'stake') {
         stakeTab.style.display = 'block';
         stakeTab.classList.add('fade');
@@ -250,12 +272,9 @@
       }
     }
 
-    // Ключевой кадр: добавим класс fade в .tab-content.
-    // В CSS уже есть animation: fadeIn 0.5s ease forwards;
-    // Можно просто .fade { animation: fadeIn 0.5s ...} но делаем inline.
-
     /*
-      Пример switchNetwork. Реализуйте в script.js, если нужно.
+      Пример функции switchNetwork, если хотим подключаться к Base (0x2105)
+      Реализация в script.js
     */
     async function switchNetwork(chainIdHex) {
       if (!window.ethereum) {
@@ -272,7 +291,36 @@
         alert("❌ Switch network failed.");
       }
     }
+
+    // detectWalletApp, если хотим определить (Trust, Metamask mobile)
+    function detectWalletApp() {
+      const ua = navigator.userAgent.toLowerCase();
+      if (ua.includes('trust')) {
+        document.body.classList.add('wallet-trust');
+      } else if (ua.includes('metamask')) {
+        document.body.classList.add('wallet-metamaskmobile');
+      }
+    }
+
+    /*
+      Доп. функция, привязанная к кнопке "Bridge with Axelar",
+      берёт значения из инпутов (fromChain, toChain, tokenSymbol, amount)
+      и вызывает bridgeWithAxelar(...) из script.js
+    */
+    async function bridgeWithAxelarUI() {
+      const fromChain = document.getElementById("fromChain").value;
+      const toChain = document.getElementById("toChain").value;
+      const tokenSymbol = document.getElementById("tokenSymbol").value;
+      const amount = document.getElementById("bridgeAmount").value;
+
+      if (!fromChain || !toChain || !tokenSymbol || !amount) {
+        return alert("Please fill all fields for bridging!");
+      }
+
+      // Вызываем функцию из script.js
+      await bridgeWithAxelar(fromChain, toChain, tokenSymbol, amount);
+    }
   </script>
 </body>
 </html>
-
+```
