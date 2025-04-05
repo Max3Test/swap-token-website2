@@ -12,9 +12,6 @@
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
 
-  <!-- Для Axelar SDK (UMD): -->
-  <script src="https://unpkg.com/@axelar-network/axelarjs-sdk/dist/index.umd.js"></script>
-
   <!-- Подключаем шрифт Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
@@ -102,7 +99,7 @@
 
     /* Поля ввода */
     input[type="number"],
-    input[type="text"] {
+    select {
       width: 100%;
       padding: 12px;
       margin-bottom: 20px;
@@ -164,7 +161,7 @@
         margin-bottom: 20px;
       }
       input[type="number"],
-      input[type="text"] {
+      select {
         font-size: 14px;
         padding: 10px;
       }
@@ -214,6 +211,7 @@
     <div id="stakeTab" class="tab-content">
       <h3>Farm MAX → StMAX</h3>
       <input type="number" id="stakeAmount" placeholder="Amount to Farm" />
+      <!-- Где вставить адреса контрактов? Ниже в script.js в stakeTokens() и unstakeTokens(). -->
       <button onclick="stakeTokens()">Farm</button>
     </div>
 
@@ -221,17 +219,36 @@
     <div id="unstakeTab" class="tab-content">
       <h3>UnFarm StMAX → MAX</h3>
       <input type="number" id="unstakeAmount" placeholder="Amount to UnFarm" />
+      <!-- Аналогично в script.js (unstakeTokens()) добавить адрес wrapper для StMAX. -->
       <button onclick="unstakeTokens()">UnFarm</button>
     </div>
 
-    <!-- Блок для Axelar-моста (UI) -->
-    <hr style="margin: 20px 30px;">
+    <!-- Шторка-выбор сетей и токенов для бриджа -->
+    <hr style="margin: 20px 0;">
     <h3>Axelar Bridge</h3>
-    <!-- Поля для выбора sourceChain, destChain, tokenSymbol, amount -->
-    <input type="text" id="fromChain" placeholder="From Chain (e.g. BaseTestnet)" />
-    <input type="text" id="toChain" placeholder="To Chain (e.g. BnbChainTestnet)" />
-    <input type="text" id="tokenSymbol" placeholder="Token Symbol (e.g. USDC)" />
-    <input type="text" id="bridgeAmount" placeholder="Amount to Bridge" />
+    <!-- Выпадайки для выбора исходной и целевой сетей -->
+    <select id="fromChain">
+      <option value="BaseTestnet">BASE</option>
+      <option value="ArbitrumTestnet">ARB</option>
+      <option value="OptimismTestnet">OP</option>
+      <option value="BnbChainTestnet">BNB</option>
+      <option value="EthereumTestnet">ETH</option>
+    </select>
+    <select id="toChain">
+      <option value="BaseTestnet">BASE</option>
+      <option value="ArbitrumTestnet">ARB</option>
+      <option value="OptimismTestnet">OP</option>
+      <option value="BnbChainTestnet">BNB</option>
+      <option value="EthereumTestnet">ETH</option>
+    </select>
+    <!-- Токен символ: только MAX или StMAX -->
+    <select id="bridgeTokenSymbol">
+      <option value="MAX">MAX</option>
+      <option value="StMAX">StMAX</option>
+    </select>
+    <!-- Сколько бриджим -->
+    <input type="number" id="bridgeAmount" placeholder="Amount to Bridge" />
+    <!-- Кнопка для бриджа через Axelar -->
     <button onclick="bridgeWithAxelarUI()">Bridge with Axelar</button>
   </div>
 
@@ -240,19 +257,16 @@
     // При загрузке показываем вкладку stake
     window.addEventListener('DOMContentLoaded', () => {
       showTab('stake');
-      detectWalletApp(); // если хотим определить wallet-app
+      detectWalletApp(); // При желании определяем Trust / Metamask
     });
 
-    /* Функция переключения вкладок (Farm / UnFarm) */
     function showTab(tab) {
       const stakeTab = document.getElementById('stakeTab');
       const unstakeTab = document.getElementById('unstakeTab');
 
-      // Скрываем обе вкладки
       stakeTab.style.display = 'none';
       unstakeTab.style.display = 'none';
 
-      // Убираем класс fade
       stakeTab.classList.remove('fade');
       unstakeTab.classList.remove('fade');
 
@@ -265,9 +279,9 @@
       }
     }
 
-    /*
-      Пример функции switchNetwork, если хотим подключаться к Base (0x2105)
-      Реализация в script.js
+    /* 
+      Пример switchNetwork, если хотим подключаться к Base (0x2105).
+      Логика в script.js (реальная).
     */
     async function switchNetwork(chainIdHex) {
       if (!window.ethereum) {
@@ -285,7 +299,10 @@
       }
     }
 
-    // detectWalletApp, если хотим определить (Trust, Metamask mobile)
+    /* 
+      Определение wallet-app (Trust, Metamask mobile) по userAgent
+      и добавление соответствующего класса к body.
+    */
     function detectWalletApp() {
       const ua = navigator.userAgent.toLowerCase();
       if (ua.includes('trust')) {
@@ -296,24 +313,22 @@
     }
 
     /*
-      Доп. функция, привязанная к кнопке "Bridge with Axelar",
-      берёт значения из инпутов (fromChain, toChain, tokenSymbol, amount)
+      Функция моста: читает выпадайки + поле bridgeAmount,
       и вызывает bridgeWithAxelar(...) из script.js
     */
     async function bridgeWithAxelarUI() {
-      const fromChain = document.getElementById("fromChain").value;
-      const toChain = document.getElementById("toChain").value;
-      const tokenSymbol = document.getElementById("tokenSymbol").value;
-      const amount = document.getElementById("bridgeAmount").value;
+      const fromChain = document.getElementById('fromChain').value;
+      const toChain = document.getElementById('toChain').value;
+      const tokenSymbol = document.getElementById('bridgeTokenSymbol').value;
+      const amount = document.getElementById('bridgeAmount').value;
 
       if (!fromChain || !toChain || !tokenSymbol || !amount) {
-        return alert("Please fill all fields for bridging!");
+        return alert("Please fill all bridging fields!");
       }
-
-      // Вызываем функцию из script.js
+      // Вызываем реальную функцию в script.js
       await bridgeWithAxelar(fromChain, toChain, tokenSymbol, amount);
     }
   </script>
 </body>
 </html>
-```
+
