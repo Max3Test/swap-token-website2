@@ -122,7 +122,7 @@ async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
     // Далее: предполагаем, что у нас есть axelar объект
     // Для простоты делаем вид, что мы уже подключили:
 
-    const environment = "testnet"; // Или 'mainnet'
+    const environment = "mainnet"; // Или 'mainnet'
     const axelar = new window.axelar.AxelarQueryAPI({ environment });
 
     // Демонстрация: получаем depositAddress (как Satellite)
