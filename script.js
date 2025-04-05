@@ -90,7 +90,6 @@ async function unstakeTokens() {
   }
 
 
-  
 async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
   try {
     const environment = "mainnet"; // Используем Mainnet Axelar
@@ -100,19 +99,23 @@ async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAddress = accounts[0];
 
+    // Проверка кастомных токенов MAX и StMAX
+    const supportedTokens = ["MAX", "StMAX"];
+    if (!supportedTokens.includes(tokenSymbol)) {
+      return alert(`❌ Токен ${tokenSymbol} не поддерживается Axelar или не интегрирован.`);
+    }
+
     // Получаем depositAddress от Axelar Gateway
     const depositAddress = await axelar.getDepositAddress({
-      fromChain: sourceChain,       // пример: "ethereum"
-      toChain: destChain,           // пример: "base"
+      fromChain: sourceChain.toLowerCase(),   // Например: "ethereum"
+      toChain: destChain.toLowerCase(),       // Например: "base"
       destinationAddress: userAddress,
-      symbol: tokenSymbol           // пример: "USDC" или ваш токен, если интегрирован в Axelar
+      symbol: tokenSymbol.toUpperCase()       // Пример: "MAX"
     });
 
     console.log("Axelar deposit address:", depositAddress);
 
-    alert(`Отправьте ${amount} ${tokenSymbol} на:
-${depositAddress}
-\nAxelar отправит их в сеть ${destChain}.`);
+    alert(`Отправьте ${amount} ${tokenSymbol} на:\n${depositAddress}\n\nAxelar отправит их в сеть ${destChain}.`);
   } catch (err) {
     console.error("Axelar Bridge error:", err);
     alert("❌ Ошибка при попытке моста через Axelar");
