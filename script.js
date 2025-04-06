@@ -151,7 +151,8 @@ async function bridgeViaWormhole() {
     alert(`✅ Sent ${amount} MAX ${direction === "baseToBnb" ? "to BNB" : "to Base"} via Wormhole.`);
   } catch (err) {
     console.error("Bridge failed:", err);
-    alert("❌ Bridge failed");
+    alert("❌ Bridge failed:\n" + (err?.message || "Unknown error"));
+
   }
 }
 
