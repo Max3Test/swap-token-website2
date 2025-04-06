@@ -258,7 +258,7 @@
     const userAddress = accounts[0];
 
     try {
-      const axelar = new window.axelar.AxelarQueryAPI({ environment: 'mainnet' });
+      const axelar = new AxelarQueryAPI({ environment: 'mainnet' });
       const depositAddress = await axelar.getDepositAddress({
         fromChain,
         toChain,
@@ -328,6 +328,9 @@
   </script>
 </body>
 </html>
+
+
+
 
 
 
