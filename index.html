@@ -1,3 +1,4 @@
+<!-- Восстановленный интерфейс с визуалом + исправления Web3Modal и проверок -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,34 +120,34 @@ function showTab(tab) {
 }
 
 async function connectWallet() {
-  const web3Modal = new window.Web3Modal.default({ cacheProvider: false });
+  const web3Modal = new window.Web3Modal({ cacheProvider: false });
   const instance = await web3Modal.connect();
   provider = new ethers.providers.Web3Provider(instance);
   signer = provider.getSigner();
+  const address = await signer.getAddress();
+  console.log("🔗 Connected:", address);
 }
 
 async function stakeTokens() {
+  if (!signer) return alert("Connect wallet first");
   const amount = document.getElementById("stakeAmount").value;
-  const tokenAddress = "0x..."; // MAX
-  const wrapperAddress = "0x..."; // StMAX
-
+  const tokenAddress = "0x...";
+  const wrapperAddress = "0x...";
   const tokenABI = ["function approve(address,uint256) external returns (bool)"];
   const wrapperABI = ["function deposit(uint256) external"];
-
   const token = new ethers.Contract(tokenAddress, tokenABI, signer);
   const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
   const value = ethers.utils.parseUnits(amount, 18);
-
   await token.approve(wrapperAddress, value);
   await wrapper.deposit(value);
   alert("✅ Staked!");
 }
 
 async function unstakeTokens() {
+  if (!signer) return alert("Connect wallet first");
   const amount = document.getElementById("unstakeAmount").value;
   const wrapperAddress = "0x...";
   const wrapperABI = ["function withdraw(uint256) external"];
-
   const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
   const value = ethers.utils.parseUnits(amount, 18);
   await wrapper.withdraw(value);
@@ -171,17 +172,13 @@ window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, a
     const userAddress = accounts[0];
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-
     const axelarGatewayAddress = "0x4cF4F9cD7f541E2070743b59D0aD016F28E9dC16";
     const tokenAddress = "0x...";
-
     const tokenABI = ["function approve(address,uint256) external returns (bool)", "function allowance(address,address) view returns (uint256)"];
     const gatewayABI = ["function sendToken(string,string,string,uint256) external"];
-
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
     const gateway = new ethers.Contract(axelarGatewayAddress, gatewayABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
-
     const allowance = await token.allowance(userAddress, axelarGatewayAddress);
     if (allowance.lt(value)) await (await token.approve(axelarGatewayAddress, value)).wait();
     await (await gateway.sendToken(destChain, userAddress, tokenSymbol, value)).wait();
