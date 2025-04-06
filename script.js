@@ -89,7 +89,7 @@ async function unstakeTokens() {
     return;
   }
 
-async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
+window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, amount) {
   try {
     console.log("🚀 bridgeWithAxelar called with:", sourceChain, destChain, tokenSymbol, amount);
 
@@ -149,7 +149,8 @@ async function bridgeWithAxelar(sourceChain, destChain, tokenSymbol, amount) {
     console.error("Axelar Bridge error:", err);
     alert("❌ Ошибка при попытке моста через Axelar");
   }
-}
+} 
+
 
   try {
     const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
