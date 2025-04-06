@@ -1,4 +1,4 @@
-<!-- Восстановленный интерфейс с визуалом + исправления Web3Modal и проверок -->
+<!-- Восстановленный интерфейс с визуалом + логика выбора адресов токенов по сети -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,6 +114,36 @@
 let provider;
 let signer;
 
+const tokenAddresses = {
+  base: {
+    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    StMAX: "0xYourStMAXonBase"
+  },
+  arbitrum: {
+    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    StMAX: "0xYourStMAXonArbitrum"
+  },
+  optimism: {
+    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    StMAX: "0xYourStMAXonOP"
+  },
+  binance: {
+    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    StMAX: ""
+  }
+};
+
+async function getChainName() {
+  const { chainId } = await provider.getNetwork();
+  switch (chainId) {
+    case 8453: return "base";
+    case 42161: return "arbitrum";
+    case 10: return "optimism";
+    case 56: return "binance";
+    default: return null;
+  }
+}
+
 function showTab(tab) {
   document.getElementById("unstakeSection").style.display = (tab === 'unstake') ? 'block' : 'none';
   document.getElementById("tabTitle").innerText = (tab === 'unstake') ? "Unstake StMAX → MAX" : "Stake MAX → StMAX";
@@ -131,8 +161,10 @@ async function connectWallet() {
 async function stakeTokens() {
   if (!signer) return alert("Connect wallet first");
   const amount = document.getElementById("stakeAmount").value;
-  const tokenAddress = "0x...";
-  const wrapperAddress = "0x...";
+  const chain = await getChainName();
+  if (!chain) return alert("Unsupported network");
+  const tokenAddress = tokenAddresses[chain].MAX;
+  const wrapperAddress = tokenAddresses[chain].StMAX;
   const tokenABI = ["function approve(address,uint256) external returns (bool)"];
   const wrapperABI = ["function deposit(uint256) external"];
   const token = new ethers.Contract(tokenAddress, tokenABI, signer);
@@ -146,7 +178,9 @@ async function stakeTokens() {
 async function unstakeTokens() {
   if (!signer) return alert("Connect wallet first");
   const amount = document.getElementById("unstakeAmount").value;
-  const wrapperAddress = "0x...";
+  const chain = await getChainName();
+  if (!chain) return alert("Unsupported network");
+  const wrapperAddress = tokenAddresses[chain].StMAX;
   const wrapperABI = ["function withdraw(uint256) external"];
   const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
   const value = ethers.utils.parseUnits(amount, 18);
@@ -173,7 +207,7 @@ window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, a
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const axelarGatewayAddress = "0x4cF4F9cD7f541E2070743b59D0aD016F28E9dC16";
-    const tokenAddress = "0x...";
+    const tokenAddress = tokenAddresses[sourceChain][tokenSymbol];
     const tokenABI = ["function approve(address,uint256) external returns (bool)", "function allowance(address,address) view returns (uint256)"];
     const gatewayABI = ["function sendToken(string,string,string,uint256) external"];
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
@@ -191,4 +225,3 @@ window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, a
 </script>
 </body>
 </html>
-
