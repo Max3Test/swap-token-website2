@@ -99,19 +99,60 @@ function showTab(tab) {
   }
 }
 
-// Заменили wormhole SDK на iframe
+// Bridge Interface
 window.addEventListener('DOMContentLoaded', () => {
   showTab('stake');
 
   const container = document.getElementById("wormhole-bridge");
-  const iframe = document.createElement("iframe");
-  iframe.src = "https://www.portalbridge.com/#/transfer";
-  iframe.style.width = "100%";
-  iframe.style.height = "700px";
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "12px";
-  iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
-  container.appendChild(iframe);
+  container.innerHTML = `
+    <div style="padding: 20px; color: white; text-align: center">
+      <h3>Bridge MAX</h3>
+      <input type="number" id="bridgeAmount" placeholder="Amount to bridge" style="padding:10px;border-radius:10px;margin-bottom:10px;width:80%"><br>
+      <select id="direction" style="margin-bottom: 10px; padding: 10px; border-radius: 10px;">
+        <option value="baseToBnb">Base → BNB</option>
+        <option value="bnbToBase">BNB → Base</option>
+      </select><br>
+      <button onclick="bridgeViaWormhole()" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(to right,#00ffff,#007bff);color:white;cursor:pointer;">Bridge</button>
+    </div>
+  `;
 });
+
+async function bridgeViaWormhole() {
+  const amount = document.getElementById("bridgeAmount").value;
+  const direction = document.getElementById("direction").value;
+  if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+  try {
+    const config = {
+      baseToBnb: {
+        tokenBridgeAddress: "0x2eE2fC3f38808A3bdBc7d3eF270F25EbAeB3fC3c", // Wormhole TokenBridge on Base
+        tokenAddress: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // MAX token on Base
+        targetChainId: 56
+      },
+      bnbToBase: {
+        tokenBridgeAddress: "0x98A0F4b96972b32Fcb3Bd03CaeB014fA3c3bB7e0", // Wormhole TokenBridge on BNB
+        tokenAddress: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // MAX token on BNB
+        targetChainId: 30 // Wormhole chain ID for Base
+      }
+    };
+
+    const { tokenBridgeAddress, tokenAddress, targetChainId } = config[direction];
+    const recipient = await signer.getAddress();
+
+    const bridgeABI = [
+      "function transferTokens(address token, uint256 amount, uint16 recipientChain, bytes32 recipient, uint256 nonce) external payable"
+    ];
+    const bridge = new ethers.Contract(tokenBridgeAddress, bridgeABI, signer);
+
+    const value = ethers.utils.parseUnits(amount, 18);
+    const recipientBytes32 = ethers.utils.hexZeroPad(recipient, 32);
+    const tx = await bridge.transferTokens(tokenAddress, value, targetChainId, recipientBytes32, Date.now());
+    await tx.wait();
+    alert(`✅ Sent ${amount} MAX ${direction === "baseToBnb" ? "to BNB" : "to Base"} via Wormhole.`);
+  } catch (err) {
+    console.error("Bridge failed:", err);
+    alert("❌ Bridge failed");
+  }
+}
 
 
