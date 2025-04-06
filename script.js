@@ -125,7 +125,7 @@ async function bridgeViaWormhole() {
   try {
     const config = {
       baseToBnb: {
-        tokenBridgeAddress: "0x2eE2fC3f38808A3bdBc7d3eF270F25EbAeB3fC3c",
+        tokenBridgeAddress: "0x2EE2fC3F38808a3BdbC7D3eF270F25eBAeB3Fc3c",
         tokenAddress: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // 🔹 FAKE MAX on Base
         targetChainId: 56
       },
