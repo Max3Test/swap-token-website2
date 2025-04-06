@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Кодировка и настройка viewport для адаптации под мобильные устройства -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>StMAX Swap</title>
 
-  <!-- Подключаем необходимые библиотеки для кошельков и Web3 -->
+  <!-- Web3 и Wormhole -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
+  <script src="https://unpkg.com/@wormhole-foundation/wormhole-connect"></script>
 
-  <!-- Подключаем шрифт Orbitron + стили -->
+  <!-- Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-    /* Общие стили для фона и шрифта (сохраняем основной визуал) */
     body {
       font-family: 'Orbitron', sans-serif;
       background: linear-gradient(to right, #1c1c1c, #2c2c2c);
@@ -24,21 +22,20 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       position: relative;
     }
-
-    /* Левая панель, кнопки Stake / Unstake, друг под другом */
-    .left-panel {
+    .left-panel, .right-panel {
       position: absolute;
       top: 40px;
-      left: 40px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
-    .left-panel button {
+    .left-panel { left: 40px; }
+    .right-panel { right: 40px; }
+    .left-panel button, .right-panel button, button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       color: white;
@@ -46,36 +43,10 @@
       font-size: 14px;
       border-radius: 10px;
       cursor: pointer;
-      width: 130px;
     }
-    .left-panel button:hover {
+    .left-panel button:hover, .right-panel button:hover, button:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
-
-    /* Правая панель (Connect Wallet, Switch Network), друг под другом */
-    .right-panel {
-      position: absolute;
-      top: 40px;
-      right: 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .right-panel button {
-      background: linear-gradient(to right, #00ffff, #007bff);
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      font-size: 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      width: 140px;
-    }
-    .right-panel button:hover {
-      background: linear-gradient(to right, #007bff, #00ffff);
-    }
-
-    /* Крупная надпись над окном свапа */
     .big-title {
       font-size: 1.8em;
       font-weight: bold;
@@ -85,8 +56,6 @@
       margin-bottom: 30px;
       text-align: center;
     }
-
-    /* Основной контейнер (UI) */
     .container {
       background: rgba(0, 0, 0, 0.6);
       padding: 40px;
@@ -95,9 +64,8 @@
       text-align: center;
       max-width: 400px;
       width: 90%;
+      margin-bottom: 30px;
     }
-
-    /* Поля ввода */
     input[type="number"] {
       width: 100%;
       padding: 12px;
@@ -107,112 +75,45 @@
       border: none;
       text-align: center;
     }
-
-    /* Кнопки внутри контейнера (Stake, Unstake) */
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background: linear-gradient(to right, #00ffff, #007bff);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-    button:hover {
-      background: linear-gradient(to right, #007bff, #00ffff);
-    }
-
-    h1 {
-      margin-bottom: 30px;
-    }
-
-    /* Добавляем анимацию fade для вкладок */
+    h1 { margin-bottom: 30px; }
     .tab-content {
-      display: none; /* По умолчанию скрыты */
+      display: none;
       opacity: 0;
       animation: fadeIn 0.5s ease forwards;
     }
     @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      100% {
-        opacity: 1;
-        transform: none;
-      }
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: none; }
     }
-
-    /* Адаптация под мобильные устройства */
     @media (max-width: 600px) {
-      .big-title {
-        font-size: 1.5em;
-        margin-top: 60px;
-      }
-      .container {
-        padding: 20px;
-        max-width: 340px;
-      }
-      h1 {
-        font-size: 18px;
-        margin-bottom: 20px;
-      }
-      input[type="number"] {
-        font-size: 14px;
-        padding: 10px;
-      }
-      button {
-        font-size: 14px;
-        padding: 10px;
-      }
-      .left-panel, .right-panel {
-        top: 10px;
-      }
-      .left-panel button,
-      .right-panel button {
-        width: auto;
-      }
-    }
-
-    /* Классы для определения wallet-app (Trust, Metamask mobile и т.д.) */
-    body.wallet-trust .container {
-      max-width: 350px;
-    }
-    body.wallet-metamaskmobile .container {
-      max-width: 350px;
+      .big-title { font-size: 1.5em; margin-top: 60px; }
+      .container { padding: 20px; max-width: 340px; }
     }
   </style>
 </head>
 <body>
-  <!-- Левая панель: Stake/Unstake, друг под другом -->
   <div class="left-panel">
     <button onclick="showTab('stake')">Stake</button>
     <button onclick="showTab('unstake')">Unstake</button>
   </div>
 
-  <!-- Правая панель: Connect Wallet, Switch Network, друг под другом -->
   <div class="right-panel">
     <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
     <button onclick="switchNetwork('0x2105')">Switch Network</button>
   </div>
 
-  <!-- Крупная надпись -->
   <div class="big-title">Cross Chain Meme Proof Of Farm</div>
 
   <div class="container">
     <h1>StMAX Wrapper</h1>
     <hr style="margin: 20px 0;">
-    
-    <!-- Вкладка для Stake -->
+
     <div id="stakeTab" class="tab-content">
       <h3>Stake MAX → StMAX</h3>
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
       <button onclick="stakeTokens()">Stake</button>
     </div>
 
-    <!-- Вкладка для Unstake -->
     <div id="unstakeTab" class="tab-content">
       <h3>Unstake StMAX → MAX</h3>
       <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
@@ -220,27 +121,48 @@
     </div>
   </div>
 
+  <!-- Wormhole Bridge -->
+  <div class="container">
+    <h2>Bridge MAX</h2>
+    <div id="wormhole-bridge"></div>
+  </div>
+
   <script src="script.js"></script>
   <script>
-    // При загрузке показываем вкладку stake
     window.addEventListener('DOMContentLoaded', () => {
       showTab('stake');
+
+      window.wormholeConnect.render({
+        container: "#wormhole-bridge",
+        config: {
+          networks: ["base", "bsc"],
+          tokens: [
+            {
+              address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // замените
+              chainId: 8453,
+              symbol: "MAX",
+              decimals: 18
+            },
+            {
+              address: "0xYourTokenAddressOnBNB", // замените
+              chainId: 56,
+              symbol: "MAX",
+              decimals: 18
+            }
+          ],
+          appName: "MAX CrossChain",
+          theme: "dark"
+        }
+      });
     });
 
     function showTab(tab) {
-      // Получаем ссылки на вкладки
       const stakeTab = document.getElementById('stakeTab');
       const unstakeTab = document.getElementById('unstakeTab');
-
-      // Сначала скрываем обе вкладки
       stakeTab.style.display = 'none';
       unstakeTab.style.display = 'none';
-
-      // Убираем анимированный класс
       stakeTab.classList.remove('fade');
       unstakeTab.classList.remove('fade');
-
-      // Включаем нужную вкладку + анимацию
       if (tab === 'stake') {
         stakeTab.style.display = 'block';
         stakeTab.classList.add('fade');
@@ -250,17 +172,8 @@
       }
     }
 
-    // Ключевой кадр: добавим класс fade в .tab-content.
-    // В CSS уже есть animation: fadeIn 0.5s ease forwards;
-    // Можно просто .fade { animation: fadeIn 0.5s ...} но делаем inline.
-
-    /*
-      Пример switchNetwork. Реализуйте в script.js, если нужно.
-    */
     async function switchNetwork(chainIdHex) {
-      if (!window.ethereum) {
-        return alert("No wallet found.");
-      }
+      if (!window.ethereum) return alert("No wallet found.");
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
