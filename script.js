@@ -34,35 +34,6 @@ async function connectWallet() {
     cacheProvider: false,
     providerOptions
   });
-  
-window.addEventListener("DOMContentLoaded", () => {
-  // Показываем stake по умолчанию
-  showTab("stake");
-
-  // Wormhole Bridge init
-  window.wormholeConnect.render({
-    container: "#wormhole-bridge",
-    config: {
-      networks: ["base", "bsc"],
-      tokens: [
-        {
-          address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // ЗАМЕНИ на адрес StMAX в Base
-          chainId: 8453, // Base Mainnet
-          symbol: "StMAX",
-          decimals: 18
-        },
-        {
-          address: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // ЗАМЕНИ на адрес StMAX в BNB
-          chainId: 56, // BNB Chain Mainnet
-          symbol: "StMAX",
-          decimals: 18
-        }
-      ],
-      appName: "StMAX CrossChain",
-      theme: "dark"
-    }
-  });
-});
 
   try {
     const instance = await web3Modal.connect();
@@ -87,8 +58,8 @@ async function stakeTokens() {
   }
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const tokenAddress = ""; // Укажи адрес MAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -119,7 +90,7 @@ async function unstakeTokens() {
   }
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
