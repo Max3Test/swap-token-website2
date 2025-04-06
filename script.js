@@ -1,51 +1,36 @@
 let provider;
 let signer;
+let bridge;
 
-// Смена сети по chainId (в 16-ричной строке, напр. '0x1' для Ethereum mainnet)
-async function switchNetwork(chainIdHex) {
-  if (!window.ethereum) {
-    return alert("Please install a compatible wallet (e.g. Metamask)");
-  }
-  try {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: chainIdHex }]
-    });
-    alert("✅ Network switched!");
-  } catch (err) {
-    // Если сеть не добавлена, можем предложить добавить
-    console.error("Failed to switch network:", err);
-    // Пример: if (err.code === 4902) { ... }
-  }
-}
+const bridgeAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e";
+const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e";       // Адрес MAX токена
+const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d";   // Адрес обёрнутого StMAX
+
+const bridgeABI = [
+  "function bridgeOut(uint256 amount, string toChain, address targetAddress) external",
+  "function bridgeIn(address user, uint256 amount, string fromChain) external"
+];
+
+const tokenABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)"
+];
+
+const wrapperABI = [
+  "function deposit(uint256 amount) external",
+  "function withdraw(uint256 amount) external"
+];
 
 // Подключение кошелька
 async function connectWallet() {
-  const providerOptions = {
-    walletconnect: {
-      package: window.WalletConnectProvider.default,
-      options: {
-        infuraId: "1c54aa3c993b4d94b73c84e833971254"
-      }
-    }
-  };
-
-  const web3Modal = new window.Web3Modal.default({
-    cacheProvider: false,
-    providerOptions
-  });
-
-  try {
-    const instance = await web3Modal.connect();
-    provider = new ethers.providers.Web3Provider(instance);
+  if (window.ethereum) {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
-
+    bridge = new ethers.Contract(bridgeAddress, bridgeABI, signer);
     const address = await signer.getAddress();
-    const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-    document.getElementById("connectBtn").innerText = `${shortAddress}`;
-  } catch (err) {
-    console.error("Connection failed:", err);
-    alert("❌ Failed to connect wallet");
+    document.getElementById("connectBtn").innerText = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
+  } else {
+    alert("❌ No wallet found");
   }
 }
 
@@ -53,17 +38,11 @@ async function connectWallet() {
 async function stakeTokens() {
   const amount = document.getElementById("stakeAmount").value;
   if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
+    alert("⚠️ Please enter a valid amount");
     return;
   }
 
   try {
-    const tokenAddress = ""; // Укажи адрес MAX
-    const wrapperAddress = ""; // Укажи адрес StMAX
-
-    const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-    const wrapperABI = ["function deposit(uint256 amount) external"];
-
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -74,10 +53,10 @@ async function stakeTokens() {
     const tx2 = await wrapper.deposit(value);
     await tx2.wait();
 
-    alert(`✅ Successfully deposited ${amount} tokens`);
+    alert(`✅ Successfully staked ${amount} MAX`);
   } catch (err) {
     console.error(err);
-    alert("❌ Deposit failed");
+    alert("❌ Stake failed");
   }
 }
 
@@ -85,23 +64,62 @@ async function stakeTokens() {
 async function unstakeTokens() {
   const amount = document.getElementById("unstakeAmount").value;
   if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
+    alert("⚠️ Please enter a valid amount");
     return;
   }
 
   try {
-    const wrapperAddress = ""; // Укажи адрес StMAX
-    const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
 
     const tx = await wrapper.withdraw(value);
     await tx.wait();
 
-    alert(`✅ Successfully withdrew ${amount} tokens`);
+    alert(`✅ Successfully unstaked ${amount} StMAX`);
   } catch (err) {
     console.error(err);
-    alert("❌ Withdraw failed");
+    alert("❌ Unstake failed");
   }
 }
+
+// Bridge OUT
+async function bridgeOut() {
+  const amount = document.getElementById("burnAmount").value;
+  const toChain = document.getElementById("toChain").value;
+  const targetAddress = document.getElementById("targetAddress").value;
+  if (!amount || !toChain || !targetAddress) {
+    alert("⚠️ Fill all fields for bridge out");
+    return;
+  }
+
+  try {
+    const tx = await bridge.bridgeOut(ethers.utils.parseUnits(amount, 18), toChain, targetAddress);
+    await tx.wait();
+    alert("✅ BridgeOut successful");
+  } catch (err) {
+    console.error(err);
+    alert("❌ BridgeOut failed");
+  }
+}
+
+// Bridge IN
+async function bridgeIn() {
+  const amount = document.getElementById("mintAmount").value;
+  const fromChain = document.getElementById("sourceChain").value;
+  const mintTo = document.getElementById("mintTo").value;
+  if (!amount || !fromChain || !mintTo) {
+    alert("⚠️ Fill all fields for bridge in");
+    return;
+  }
+
+  try {
+    const tx = await bridge.bridgeIn(mintTo, ethers.utils.parseUnits(amount, 18), fromChain);
+    await tx.wait();
+    alert("✅ BridgeIn successful");
+  } catch (err) {
+    console.error(err);
+    alert("❌ BridgeIn failed");
+  }
+}
+
 
