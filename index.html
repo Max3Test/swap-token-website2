@@ -1,4 +1,3 @@
-<!-- ВАЖНО: Этот index.html не содержит подключения SDK -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,31 +10,25 @@
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <script src="https://unpkg.com/web3modal"></script>
 
-  <!-- Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(to right, #1c1c1c, #2c2c2c);
+      background: #1c1c1c;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      position: relative;
+      padding: 40px 20px;
     }
-    .left-panel, .right-panel {
-      position: absolute;
-      top: 40px;
+    .panel {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
     }
-    .left-panel { left: 40px; }
-    .right-panel { right: 40px; }
-    .left-panel button, .right-panel button, button {
+    button {
       background: linear-gradient(to right, #00ffff, #007bff);
       border: none;
       color: white;
@@ -44,29 +37,20 @@
       border-radius: 10px;
       cursor: pointer;
     }
-    .left-panel button:hover, .right-panel button:hover, button:hover {
+    button:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
-    }
-    .big-title {
-      font-size: 1.8em;
-      font-weight: bold;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
-      margin-top: 80px;
-      margin-bottom: 30px;
-      text-align: center;
     }
     .container {
       background: rgba(0, 0, 0, 0.6);
-      padding: 40px;
+      padding: 30px;
       border-radius: 20px;
       box-shadow: 0 0 20px #00ffff88;
       text-align: center;
-      max-width: 400px;
-      width: 90%;
-      margin-bottom: 30px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 40px;
     }
-    input[type="number"] {
+    input, select {
       width: 100%;
       padding: 12px;
       margin-bottom: 20px;
@@ -75,59 +59,54 @@
       border: none;
       text-align: center;
     }
-    h1 { margin-bottom: 30px; }
     .tab-content {
       display: none;
-      opacity: 0;
+    }
+    .tab-content.active {
+      display: block;
       animation: fadeIn 0.5s ease forwards;
     }
     @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: none; }
-    }
-    @media (max-width: 600px) {
-      .big-title { font-size: 1.5em; margin-top: 60px; }
-      .container { padding: 20px; max-width: 340px; }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
     }
   </style>
 </head>
 <body>
-  <div class="left-panel">
-    <button onclick="showTab('stake')">Stake</button>
-    <button onclick="showTab('unstake')">Unstake</button>
+  <div class="panel">
+    <div>
+      <button onclick="showTab('stake')">Stake</button>
+      <button onclick="showTab('unstake')">Unstake</button>
+    </div>
+    <div>
+      <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <button onclick="switchNetwork('0x2105')">Switch Network</button>
+    </div>
   </div>
-
-  <div class="right-panel">
-    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
-    <button onclick="switchNetwork('0x2105')">Switch Network</button>
-  </div>
-
-  <div class="big-title">Cross Chain Meme Proof Of Farm</div>
 
   <div class="container">
-    <h1>StMAX Wrapper</h1>
-    <hr style="margin: 20px 0;">
+    <h2>StMAX Wrapper</h2>
 
-    <div id="stakeTab" class="tab-content">
-      <h3>Stake MAX → StMAX</h3>
+    <div id="stakeTab" class="tab-content active">
+      <h4>Stake MAX → StMAX</h4>
       <input type="number" id="stakeAmount" placeholder="Amount to stake" />
       <button onclick="stakeTokens()">Stake</button>
     </div>
 
     <div id="unstakeTab" class="tab-content">
-      <h3>Unstake StMAX → MAX</h3>
+      <h4>Unstake StMAX → MAX</h4>
       <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
       <button onclick="unstakeTokens()">Unstake</button>
     </div>
   </div>
 
-  <!-- Wormhole Bridge -->
   <div class="container">
-    <h2>Bridge MAX</h2>
+    <h2>Bridge MAX Cross-Chain</h2>
     <div id="wormhole-bridge"></div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
 
