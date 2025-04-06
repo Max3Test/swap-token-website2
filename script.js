@@ -47,8 +47,8 @@ async function stakeTokens() {
   if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const tokenAddress = ""; // Укажи адрес MAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
@@ -70,7 +70,7 @@ async function unstakeTokens() {
   if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -99,15 +99,32 @@ function showTab(tab) {
   }
 }
 
-// Вставка Wormhole Connect вручную через iframe (временное решение)
+// Wormhole Connect (через SDK, без iframe)
 window.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById("wormhole-bridge");
-  const iframe = document.createElement("iframe");
-  iframe.src = "https://www.portalbridge.com/#/transfer";
-  iframe.style.width = "100%";
-  iframe.style.height = "700px";
-  iframe.style.border = "none";
-  container.appendChild(iframe);
+  showTab('stake');
+
+  window.wormholeConnect.render({
+    container: "#wormhole-bridge",
+    config: {
+      networks: ["base", "bsc"],
+      tokens: [
+        {
+          address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // Base MAX
+          chainId: 8453,
+          symbol: "MAX",
+          decimals: 18
+        },
+        {
+          address: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // BNB MAX
+          chainId: 56,
+          symbol: "MAX",
+          decimals: 18
+        }
+      ],
+      appName: "MAX CrossChain",
+      theme: "dark"
+    }
+  });
 });
 
 
