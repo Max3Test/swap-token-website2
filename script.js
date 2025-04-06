@@ -83,33 +83,6 @@ async function unstakeTokens() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  showTab('stake');
-
-  window.wormholeConnect.render({
-    container: "#wormhole-bridge",
-    config: {
-      networks: ["base", "bsc"],
-      tokens: [
-        {
-          address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
-          chainId: 8453,
-          symbol: "MAX",
-          decimals: 18
-        },
-        {
-          address: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34",
-          chainId: 56,
-          symbol: "MAX",
-          decimals: 18
-        }
-      ],
-      appName: "MAX CrossChain",
-      theme: "dark"
-    }
-  });
-});
-
 function showTab(tab) {
   const stakeTab = document.getElementById('stakeTab');
   const unstakeTab = document.getElementById('unstakeTab');
@@ -125,5 +98,16 @@ function showTab(tab) {
     unstakeTab.classList.add('fade');
   }
 }
+
+// Вставка Wormhole Connect вручную через iframe (временное решение)
+window.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById("wormhole-bridge");
+  const iframe = document.createElement("iframe");
+  iframe.src = "https://www.portalbridge.com/#/transfer";
+  iframe.style.width = "100%";
+  iframe.style.height = "700px";
+  iframe.style.border = "none";
+  container.appendChild(iframe);
+});
 
 
