@@ -1,11 +1,9 @@
+// script.js
 let provider;
 let signer;
 
-// Смена сети по chainId (в 16-ричной строке, напр. '0x1' для Ethereum mainnet)
 async function switchNetwork(chainIdHex) {
-  if (!window.ethereum) {
-    return alert("Please install a compatible wallet (e.g. Metamask)");
-  }
+  if (!window.ethereum) return alert("No wallet found.");
   try {
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
@@ -13,20 +11,16 @@ async function switchNetwork(chainIdHex) {
     });
     alert("✅ Network switched!");
   } catch (err) {
-    // Если сеть не добавлена, можем предложить добавить
     console.error("Failed to switch network:", err);
-    // Пример: if (err.code === 4902) { ... }
+    alert("❌ Switch network failed.");
   }
 }
 
-// Подключение кошелька
 async function connectWallet() {
   const providerOptions = {
     walletconnect: {
       package: window.WalletConnectProvider.default,
-      options: {
-        infuraId: "1c54aa3c993b4d94b73c84e833971254"
-      }
+      options: { infuraId: "1c54aa3c993b4d94b73c84e833971254" }
     }
   };
 
@@ -39,7 +33,6 @@ async function connectWallet() {
     const instance = await web3Modal.connect();
     provider = new ethers.providers.Web3Provider(instance);
     signer = provider.getSigner();
-
     const address = await signer.getAddress();
     const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
     document.getElementById("connectBtn").innerText = `${shortAddress}`;
@@ -49,31 +42,22 @@ async function connectWallet() {
   }
 }
 
-// Stake (Wrap)
 async function stakeTokens() {
   const amount = document.getElementById("stakeAmount").value;
-  if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
-    return;
-  }
+  if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
-
+    const tokenAddress = ""; // Укажи адрес MAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
-
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
-
     const tx1 = await token.approve(wrapperAddress, value);
     await tx1.wait();
-
     const tx2 = await wrapper.deposit(value);
     await tx2.wait();
-
     alert(`✅ Successfully deposited ${amount} tokens`);
   } catch (err) {
     console.error(err);
@@ -81,27 +65,65 @@ async function stakeTokens() {
   }
 }
 
-// Unstake (Unwrap)
 async function unstakeTokens() {
   const amount = document.getElementById("unstakeAmount").value;
-  if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
-    return;
-  }
+  if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const wrapperAddress = ""; // Укажи адрес StMAX
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
-
     const tx = await wrapper.withdraw(value);
     await tx.wait();
-
     alert(`✅ Successfully withdrew ${amount} tokens`);
   } catch (err) {
     console.error(err);
     alert("❌ Withdraw failed");
   }
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  showTab('stake');
+
+  window.wormholeConnect.render({
+    container: "#wormhole-bridge",
+    config: {
+      networks: ["base", "bsc"],
+      tokens: [
+        {
+          address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+          chainId: 8453,
+          symbol: "MAX",
+          decimals: 18
+        },
+        {
+          address: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34",
+          chainId: 56,
+          symbol: "MAX",
+          decimals: 18
+        }
+      ],
+      appName: "MAX CrossChain",
+      theme: "dark"
+    }
+  });
+});
+
+function showTab(tab) {
+  const stakeTab = document.getElementById('stakeTab');
+  const unstakeTab = document.getElementById('unstakeTab');
+  stakeTab.style.display = 'none';
+  unstakeTab.style.display = 'none';
+  stakeTab.classList.remove('fade');
+  unstakeTab.classList.remove('fade');
+  if (tab === 'stake') {
+    stakeTab.style.display = 'block';
+    stakeTab.classList.add('fade');
+  } else {
+    unstakeTab.style.display = 'block';
+    unstakeTab.classList.add('fade');
+  }
+}
+
 
