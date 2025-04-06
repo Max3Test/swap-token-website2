@@ -1,4 +1,4 @@
-<!-- Восстановленный интерфейс с визуалом + логика выбора адресов токенов по сети -->
+<!-- Обновлённый интерфейс с поддержкой Trust Wallet и исправленным Axelar SDK -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,20 +116,20 @@ let signer;
 
 const tokenAddresses = {
   base: {
-    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    MAX: "0xYourMAXonBase",
     StMAX: "0xYourStMAXonBase"
   },
   arbitrum: {
-    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    MAX: "0xYourMAXonArbitrum",
     StMAX: "0xYourStMAXonArbitrum"
   },
   optimism: {
-    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
+    MAX: "0xYourMAXonOP",
     StMAX: "0xYourStMAXonOP"
   },
   binance: {
-    MAX: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e",
-    StMAX: ""
+    MAX: "0xYourMAXonBNB",
+    StMAX: "0xYourStMAXonBNB"
   }
 };
 
@@ -150,7 +150,28 @@ function showTab(tab) {
 }
 
 async function connectWallet() {
-  const web3Modal = new window.Web3Modal.default({ cacheProvider: false });
+  const providerOptions = {
+    injected: {
+      display: {
+        name: "MetaMask / Trust Wallet",
+        description: "Connect with browser extension"
+      },
+      package: null
+    },
+    walletconnect: {
+      package: window.WalletConnectProvider.default,
+      options: {
+        rpc: {
+          1: "https://rpc.ankr.com/eth",
+          56: "https://bsc-dataseed.binance.org/",
+          137: "https://polygon-rpc.com",
+          8453: "https://mainnet.base.org"
+        },
+        chainId: 8453
+      }
+    }
+  };
+  const web3Modal = new window.Web3Modal.default({ cacheProvider: false, providerOptions });
   const instance = await web3Modal.connect();
   provider = new ethers.providers.Web3Provider(instance);
   signer = provider.getSigner();
@@ -200,28 +221,23 @@ function bridgeWithAxelarUI() {
 window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, amount) {
   try {
     const environment = "mainnet";
-    const axelar = new window.axelar.AxelarGMPRecoveryAPI({ environment });
+    const axelar = new window.axelar.AxelarQueryAPI({ environment });
     if (!window.ethereum) return alert("No wallet");
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAddress = accounts[0];
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const axelarGatewayAddress = "0x4cF4F9cD7f541E2070743b59D0aD016F28E9dC16";
-    const tokenAddress = tokenAddresses[sourceChain][tokenSymbol];
-    const tokenABI = ["function approve(address,uint256) external returns (bool)", "function allowance(address,address) view returns (uint256)"];
-    const gatewayABI = ["function sendToken(string,string,string,uint256) external"];
-    const token = new ethers.Contract(tokenAddress, tokenABI, signer);
-    const gateway = new ethers.Contract(axelarGatewayAddress, gatewayABI, signer);
-    const value = ethers.utils.parseUnits(amount, 18);
-    const allowance = await token.allowance(userAddress, axelarGatewayAddress);
-    if (allowance.lt(value)) await (await token.approve(axelarGatewayAddress, value)).wait();
-    await (await gateway.sendToken(destChain, userAddress, tokenSymbol, value)).wait();
-    alert(`✅ Sent ${amount} ${tokenSymbol} to ${destChain}`);
+    const depositAddress = await axelar.getDepositAddress({
+      fromChain: sourceChain,
+      toChain: destChain,
+      destinationAddress: userAddress,
+      symbol: tokenSymbol
+    });
+    alert(`Send ${amount} ${tokenSymbol} to ${depositAddress}\nAxelar will bridge it to ${destChain}`);
   } catch (err) {
     console.error(err);
-    alert("❌ Bridge failed");
+    alert("❌ Axelar Bridge failed");
   }
 }
 </script>
 </body>
 </html>
+
