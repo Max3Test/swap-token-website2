@@ -244,7 +244,7 @@
   <div id="depositResult" style="margin-top: 10px; word-break: break-word;"></div>
 </div>
 
-<script src="https://unpkg.com/@axelar-network/axelarjs-sdk"></script>
+<script src="https://cdn.jsdelivr.net/npm/@axelar-network/axelarjs-sdk@1.0.91/dist/index.umd.min.js"></script>
 <script>
   async function getDepositAddress() {
     const fromChain = document.getElementById('fromChain').value;
@@ -258,7 +258,7 @@
     const userAddress = accounts[0];
 
     try {
-      const axelar = new axelar.AxelarQueryAPI({ environment: 'mainnet' });
+      const axelar = new window.axelar.AxelarQueryAPI({ environment: 'mainnet' });
       const depositAddress = await axelar.getDepositAddress({
         fromChain,
         toChain,
@@ -328,6 +328,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
