@@ -1,11 +1,10 @@
+// ===== INIT =====
 let provider;
 let signer;
 
-// Смена сети по chainId (в 16-ричной строке, напр. '0x1' для Ethereum mainnet)
+// ===== SWITCH NETWORK =====
 async function switchNetwork(chainIdHex) {
-  if (!window.ethereum) {
-    return alert("Please install a compatible wallet (e.g. Metamask)");
-  }
+  if (!window.ethereum) return alert("Please install a compatible wallet (e.g. Metamask)");
   try {
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
@@ -13,13 +12,11 @@ async function switchNetwork(chainIdHex) {
     });
     alert("✅ Network switched!");
   } catch (err) {
-    // Если сеть не добавлена, можем предложить добавить
     console.error("Failed to switch network:", err);
-    // Пример: if (err.code === 4902) { ... }
   }
 }
 
-// Подключение кошелька
+// ===== CONNECT WALLET =====
 async function connectWallet() {
   const providerOptions = {
     walletconnect: {
@@ -49,17 +46,14 @@ async function connectWallet() {
   }
 }
 
-// Stake (Wrap)
+// ===== STAKE (WRAP) =====
 async function stakeTokens() {
   const amount = document.getElementById("stakeAmount").value;
-  if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
-    return;
-  }
+  if (!amount || amount <= 0) return alert("Please enter a valid amount");
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e";
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d";
 
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
@@ -81,16 +75,13 @@ async function stakeTokens() {
   }
 }
 
-// Unstake (Unwrap)
+// ===== UNSTAKE (UNWRAP) =====
 async function unstakeTokens() {
   const amount = document.getElementById("unstakeAmount").value;
-  if (!amount || amount <= 0) {
-    alert("Please enter a valid amount");
-    return;
-  }
+  if (!amount || amount <= 0) return alert("Please enter a valid amount");
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d";
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -105,3 +96,29 @@ async function unstakeTokens() {
   }
 }
 
+// ===== AXELAR BRIDGE (deposit address style) =====
+async function getDepositAddress() {
+  const fromChain = document.getElementById('fromChain').value;
+  const toChain = document.getElementById('toChain').value;
+  const symbol = document.getElementById('bridgeToken').value;
+  const amount = document.getElementById('bridgeAmount').value;
+
+  if (!window.ethereum) return alert("Wallet not found");
+
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  const userAddress = accounts[0];
+
+  try {
+    const axelar = new AxelarQueryAPI({ environment: 'mainnet' });
+    const depositAddress = await axelar.getDepositAddress({
+      fromChain,
+      toChain,
+      destinationAddress: userAddress,
+      symbol
+    });
+    document.getElementById("depositResult").innerHTML = `Send <strong>${amount} ${symbol}</strong> to:<br><code>${depositAddress}</code>`;
+  } catch (err) {
+    console.error("Axelar Bridge Error:", err);
+    alert("❌ Failed to get Axelar deposit address");
+  }
+}
