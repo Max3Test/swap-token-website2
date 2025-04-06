@@ -47,8 +47,8 @@ async function stakeTokens() {
   if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // Укажи адрес MAX
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const tokenAddress = "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e"; // 🔹 FAKE MAX token on Base
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // 🔹 FAKE StMAX wrapper
     const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
     const wrapperABI = ["function deposit(uint256 amount) external"];
     const token = new ethers.Contract(tokenAddress, tokenABI, signer);
@@ -70,7 +70,7 @@ async function unstakeTokens() {
   if (!amount || amount <= 0) return alert("Enter a valid amount");
 
   try {
-    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // Укажи адрес StMAX
+    const wrapperAddress = "0x1cC6d610c190C7742FE7603987aBCa76e403CD0d"; // 🔹 FAKE StMAX wrapper
     const wrapperABI = ["function withdraw(uint256 amount) external"];
     const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
     const value = ethers.utils.parseUnits(amount, 18);
@@ -125,14 +125,14 @@ async function bridgeViaWormhole() {
   try {
     const config = {
       baseToBnb: {
-        tokenBridgeAddress: "0x2eE2fC3f38808A3bdBc7d3eF270F25EbAeB3fC3c", // Wormhole TokenBridge on Base
-        tokenAddress: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // MAX token on Base
+        tokenBridgeAddress: "0x2eE2fC3f38808A3bdBc7d3eF270F25EbAeB3fC3c",
+        tokenAddress: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // 🔹 FAKE MAX on Base
         targetChainId: 56
       },
       bnbToBase: {
-        tokenBridgeAddress: "0x98A0F4b96972b32Fcb3Bd03CaeB014fA3c3bB7e0", // Wormhole TokenBridge on BNB
-        tokenAddress: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // MAX token on BNB
-        targetChainId: 30 // Wormhole chain ID for Base
+        tokenBridgeAddress: "0x98A0F4b96972b32Fcb3Bd03CaeB014fA3c3bB7e0",
+        tokenAddress: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // 🔹 FAKE MAX on BNB
+        targetChainId: 30
       }
     };
 
@@ -154,5 +154,4 @@ async function bridgeViaWormhole() {
     alert("❌ Bridge failed");
   }
 }
-
 
