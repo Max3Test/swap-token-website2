@@ -176,6 +176,7 @@ async function connectWallet() {
   provider = new ethers.providers.Web3Provider(instance);
   signer = provider.getSigner();
   const address = await signer.getAddress();
+  document.querySelector("#connectBtn").innerText = `🔗 ${address.slice(0,6)}...${address.slice(-4)}`;
   console.log("🔗 Connected:", address);
 }
 
@@ -221,7 +222,8 @@ function bridgeWithAxelarUI() {
 window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, amount) {
   try {
     const environment = "mainnet";
-    const axelar = new window.axelar.AxelarQueryAPI({ environment });
+    const axelar = new window.axelar.AxelarQueryAPI ? new window.axelar.AxelarQueryAPI({ environment }) : null;
+    if (!axelar) return alert("Axelar SDK not loaded correctly");
     if (!window.ethereum) return alert("No wallet");
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const userAddress = accounts[0];
@@ -240,4 +242,3 @@ window.bridgeWithAxelar = async function (sourceChain, destChain, tokenSymbol, a
 </script>
 </body>
 </html>
-
