@@ -1,183 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Кодировка и настройка viewport для адаптации под мобильные устройства -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StMAX Cross-Chain Bridge</title>
+
+  <title>StMAX Swap</title>
+
+  <!-- Подключаем необходимые библиотеки для кошельков и Web3 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+  <script src="https://unpkg.com/web3modal"></script>
+
+  <!-- Подключаем шрифт Orbitron + стили -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
+    /* Общие стили для фона и шрифта (сохраняем основной визуал) */
     body {
       font-family: 'Orbitron', sans-serif;
-      background: #121212;
+      background: linear-gradient(to right, #1c1c1c, #2c2c2c);
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      padding-top: 20px;
+      position: relative;
     }
-    .container {
-      background: rgba(0,0,0,0.6);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px #00ffff88;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
+
+    /* Левая панель, кнопки Stake / Unstake, друг под другом */
+    .left-panel {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .left-panel button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 130px;
+    }
+    .left-panel button:hover {
+      background: linear-gradient(to right, #007bff, #00ffff);
+    }
+
+    /* Правая панель (Connect Wallet, Switch Network), друг под другом */
+    .right-panel {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .right-panel button {
+      background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 140px;
+    }
+    .right-panel button:hover {
+      background: linear-gradient(to right, #007bff, #00ffff);
+    }
+
+    /* Крупная надпись над окном свапа */
+    .big-title {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-top: 80px;
       margin-bottom: 30px;
+      text-align: center;
     }
-    input, select, button {
+
+    /* Основной контейнер (UI) */
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #00ffff88;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    /* Поля ввода */
+    input[type="number"] {
       width: 100%;
-      margin-bottom: 15px;
       padding: 12px;
+      margin-bottom: 20px;
       font-size: 16px;
       border-radius: 10px;
       border: none;
+      text-align: center;
     }
+
+    /* Кнопки внутри контейнера (Stake, Unstake) */
     button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
       background: linear-gradient(to right, #00ffff, #007bff);
+      border: none;
+      border-radius: 10px;
       color: white;
       cursor: pointer;
+      margin-bottom: 10px;
     }
     button:hover {
       background: linear-gradient(to right, #007bff, #00ffff);
     }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    /* Добавляем анимацию fade для вкладок */
+    .tab-content {
+      display: none; /* По умолчанию скрыты */
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* Адаптация под мобильные устройства */
+    @media (max-width: 600px) {
+      .big-title {
+        font-size: 1.5em;
+        margin-top: 60px;
+      }
+      .container {
+        padding: 20px;
+        max-width: 340px;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+      input[type="number"] {
+        font-size: 14px;
+        padding: 10px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px;
+      }
+      .left-panel, .right-panel {
+        top: 10px;
+      }
+      .left-panel button,
+      .right-panel button {
+        width: auto;
+      }
+    }
+
+    /* Классы для определения wallet-app (Trust, Metamask mobile и т.д.) */
+    body.wallet-trust .container {
+      max-width: 350px;
+    }
+    body.wallet-metamaskmobile .container {
+      max-width: 350px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>StMAX Wallet</h2>
-    <button onclick="connectWallet()" id="connectBtn">Connect Wallet</button>
+  <!-- Левая панель: Stake/Unstake, друг под другом -->
+  <div class="left-panel">
+    <button onclick="showTab('stake')">Stake</button>
+    <button onclick="showTab('unstake')">Unstake</button>
   </div>
 
-  <div class="container">
-    <h2>Stake / Unstake</h2>
-    <input type="number" id="stakeAmount" placeholder="Amount to Stake" />
-    <button onclick="stakeTokens()">Stake</button>
-    <input type="number" id="unstakeAmount" placeholder="Amount to Unstake" />
-    <button onclick="unstakeTokens()">Unstake</button>
+  <!-- Правая панель: Connect Wallet, Switch Network, друг под другом -->
+  <div class="right-panel">
+    <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+    <button onclick="switchNetwork('0x2105')">Switch Network</button>
   </div>
 
-  <div class="container">
-    <h2>StMAX Cross-Chain Bridge</h2>
-    <h3>Bridge Out (Burn)</h3>
-    <input type="text" id="toChain" placeholder="Target Chain (e.g. BNB)" />
-    <input type="text" id="targetAddress" placeholder="Target Address" />
-    <input type="number" id="burnAmount" placeholder="Amount to Burn" />
-    <button onclick="bridgeOut()">Bridge Out</button>
+  <!-- Крупная надпись -->
+  <div class="big-title">Cross Chain Meme Proof Of Farm</div>
 
-    <h3>Bridge In (Mint)</h3>
-    <input type="text" id="sourceChain" placeholder="Source Chain (e.g. Base)" />
-    <input type="text" id="mintTo" placeholder="Recipient Address" />
-    <input type="number" id="mintAmount" placeholder="Amount to Mint" />
-    <button onclick="bridgeIn()">Bridge In</button>
+  <div class="container">
+    <h1>StMAX Wrapper</h1>
+    <hr style="margin: 20px 0;">
+    
+    <!-- Вкладка для Stake -->
+    <div id="stakeTab" class="tab-content">
+      <h3>Stake MAX → StMAX</h3>
+      <input type="number" id="stakeAmount" placeholder="Amount to stake" />
+      <button onclick="stakeTokens()">Stake</button>
+    </div>
+
+    <!-- Вкладка для Unstake -->
+    <div id="unstakeTab" class="tab-content">
+      <h3>Unstake StMAX → MAX</h3>
+      <input type="number" id="unstakeAmount" placeholder="Amount to unstake" />
+      <button onclick="unstakeTokens()">Unstake</button>
+    </div>
   </div>
 
+  <script src="script.js"></script>
   <script>
-    let provider;
-    let signer;
-    let bridge;
+    // При загрузке показываем вкладку stake
+    window.addEventListener('DOMContentLoaded', () => {
+      showTab('stake');
+    });
 
-    const bridgeAddress = "0xYourBridgeContractAddress";
-    const tokenAddress = "0xYourTokenAddress";
-    const wrapperAddress = "0xYourWrapperAddress";
+    function showTab(tab) {
+      // Получаем ссылки на вкладки
+      const stakeTab = document.getElementById('stakeTab');
+      const unstakeTab = document.getElementById('unstakeTab');
 
-    const bridgeABI = [
-      "function bridgeOut(uint256 amount, string toChain, address targetAddress) external",
-      "function bridgeIn(address user, uint256 amount, string fromChain) external"
-    ];
+      // Сначала скрываем обе вкладки
+      stakeTab.style.display = 'none';
+      unstakeTab.style.display = 'none';
 
-    const tokenABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-    const wrapperABI = [
-      "function deposit(uint256 amount) external",
-      "function withdraw(uint256 amount) external"
-    ];
+      // Убираем анимированный класс
+      stakeTab.classList.remove('fade');
+      unstakeTab.classList.remove('fade');
 
-    async function connectWallet() {
-      if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        bridge = new ethers.Contract(bridgeAddress, bridgeABI, signer);
-        const address = await signer.getAddress();
-        document.getElementById("connectBtn").innerText = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
+      // Включаем нужную вкладку + анимацию
+      if (tab === 'stake') {
+        stakeTab.style.display = 'block';
+        stakeTab.classList.add('fade');
       } else {
-        alert("No wallet found");
+        unstakeTab.style.display = 'block';
+        unstakeTab.classList.add('fade');
       }
     }
 
-    async function stakeTokens() {
-      const amount = document.getElementById("stakeAmount").value;
-      if (!amount || amount <= 0) return alert("Enter amount");
-      try {
-        const token = new ethers.Contract(tokenAddress, tokenABI, signer);
-        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
-        const value = ethers.utils.parseUnits(amount, 18);
-        const tx1 = await token.approve(wrapperAddress, value);
-        await tx1.wait();
-        const tx2 = await wrapper.deposit(value);
-        await tx2.wait();
-        alert("✅ Staked successfully");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Stake failed");
-      }
-    }
+    // Ключевой кадр: добавим класс fade в .tab-content.
+    // В CSS уже есть animation: fadeIn 0.5s ease forwards;
+    // Можно просто .fade { animation: fadeIn 0.5s ...} но делаем inline.
 
-    async function unstakeTokens() {
-      const amount = document.getElementById("unstakeAmount").value;
-      if (!amount || amount <= 0) return alert("Enter amount");
-      try {
-        const wrapper = new ethers.Contract(wrapperAddress, wrapperABI, signer);
-        const value = ethers.utils.parseUnits(amount, 18);
-        const tx = await wrapper.withdraw(value);
-        await tx.wait();
-        alert("✅ Unstaked successfully");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Unstake failed");
+    /*
+      Пример switchNetwork. Реализуйте в script.js, если нужно.
+    */
+    async function switchNetwork(chainIdHex) {
+      if (!window.ethereum) {
+        return alert("No wallet found.");
       }
-    }
-
-    async function bridgeOut() {
-      const amount = document.getElementById("burnAmount").value;
-      const toChain = document.getElementById("toChain").value;
-      const targetAddress = document.getElementById("targetAddress").value;
-      if (!amount || !toChain || !targetAddress) return alert("Fill all fields");
       try {
-        const tx = await bridge.bridgeOut(ethers.utils.parseUnits(amount, 18), toChain, targetAddress);
-        await tx.wait();
-        alert("✅ BridgeOut successful");
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: chainIdHex }]
+        });
+        alert("✅ Network switched!");
       } catch (err) {
-        console.error(err);
-        alert("❌ BridgeOut failed");
-      }
-    }
-
-    async function bridgeIn() {
-      const amount = document.getElementById("mintAmount").value;
-      const fromChain = document.getElementById("sourceChain").value;
-      const mintTo = document.getElementById("mintTo").value;
-      if (!amount || !fromChain || !mintTo) return alert("Fill all fields");
-      try {
-        const tx = await bridge.bridgeIn(mintTo, ethers.utils.parseUnits(amount, 18), fromChain);
-        await tx.wait();
-        alert("✅ BridgeIn successful");
-      } catch (err) {
-        console.error(err);
-        alert("❌ BridgeIn failed");
+        console.error("Failed to switch network:", err);
+        alert("❌ Switch network failed.");
       }
     }
   </script>
 </body>
 </html>
-
-
-
-
-
-
 
