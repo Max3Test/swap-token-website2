@@ -1,5 +1,5 @@
 
-<script>
+
     // ================ VARS ================
     let provider;
     let signer;
@@ -156,4 +156,4 @@
         alert(\"Failed to generate deposit address\");
       }
     }
-  </script>
+
