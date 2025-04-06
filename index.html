@@ -128,64 +128,6 @@
   </div>
 
   <script src="script.js"></script>
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      showTab('stake');
-
-      window.wormholeConnect.render({
-        container: "#wormhole-bridge",
-        config: {
-          networks: ["base", "bsc"],
-          tokens: [
-            {
-              address: "0x69b4086C7B131ED691d428e2BBa7cAcD4A4C641e", // замените
-              chainId: 8453,
-              symbol: "MAX",
-              decimals: 18
-            },
-            {
-              address: "0x5684bFD60f4aBdde4B23d5Fa03844dc990cc9f34", // замените
-              chainId: 56,
-              symbol: "MAX",
-              decimals: 18
-            }
-          ],
-          appName: "MAX CrossChain",
-          theme: "dark"
-        }
-      });
-    });
-
-    function showTab(tab) {
-      const stakeTab = document.getElementById('stakeTab');
-      const unstakeTab = document.getElementById('unstakeTab');
-      stakeTab.style.display = 'none';
-      unstakeTab.style.display = 'none';
-      stakeTab.classList.remove('fade');
-      unstakeTab.classList.remove('fade');
-      if (tab === 'stake') {
-        stakeTab.style.display = 'block';
-        stakeTab.classList.add('fade');
-      } else {
-        unstakeTab.style.display = 'block';
-        unstakeTab.classList.add('fade');
-      }
-    }
-
-    async function switchNetwork(chainIdHex) {
-      if (!window.ethereum) return alert("No wallet found.");
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: chainIdHex }]
-        });
-        alert("✅ Network switched!");
-      } catch (err) {
-        console.error("Failed to switch network:", err);
-        alert("❌ Switch network failed.");
-      }
-    }
-  </script>
 </body>
 </html>
 
